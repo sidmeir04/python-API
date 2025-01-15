@@ -60,8 +60,6 @@ class get_functions():
         
         # Fetch all results
         results = cursor.fetchall()
-        if connection:
-            connection.close()
         # id, staff, caller_name, caller_email, call_date, phone_number, referral_type, additional_notes, tour_scheduled, tour_not_scheduled_reason, follow_up_date
         dict_results = {}
         columns = ["id", "staff", "caller_name", "caller_email", "call_date", "phone_number", "referral_type", "additional_notes", "tour_scheduled", "tour_not_scheduled_reason", "follow_up_date"]
@@ -206,7 +204,6 @@ class get_functions():
         # id, name, age, dob, email, aep_completion_date, join_date, schedule, phone, address, county, gender, veteran, joined, caregiver_needed, adler_program, member_info, enrollment_form, medical_history, emergency_contact_one, emergency_contact_two
         dict_results = {}
         columns = ["id", "name", "age", "dob", "email", "aep_completion_date", "join_date", "schedule", "phone", "address", "county", "gender", "veteran", "joined", "caregiver_needed", "adler_program", "member_info", "enrollment_form", "medical_history", "emergency_contact_one", "emergency_contact_two"]
-        print(results)
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
         return dict_results
@@ -282,7 +279,6 @@ class get_functions():
         # id, sexual_orientation, race, income, living_status, grew_up, occupations, prev_speech_therapy, other_therapy, hearing_loss, hearing_aid, aphasia_cause, aphasia_onset, brain_location, medications, filled_by, completed_date, patient_info
         dict_results = {}
         columns = ["id", "sexual_orientation", "race", "income", "living_status", "grew_up", "occupations", "prev_speech_therapy", "other_therapy", "hearing_loss", "hearing_aid", "aphasia_cause", "aphasia_onset", "brain_location", "medications", "filled_by", "completed_date", "patient_info"]
-        print(results)
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
         return dict_results
@@ -379,10 +375,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        # id, sexual_orientation, race, income, living_status, grew_up, occupations, prev_speech_therapy, other_therapy, hearing_loss, hearing_aid, aphasia_cause, aphasia_onset, brain_location, medications, filled_by, completed_date, patient_info
+        dict_results = {}
+        columns = ["id", "sexual_orientation", "race", "income", "living_status", "grew_up", "occupations", "prev_speech_therapy", "other_therapy", "hearing_loss", "hearing_aid", "aphasia_cause", "aphasia_onset", "brain_location", "medications", "filled_by", "completed_date", "patient_info"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
     
     @staticmethod
     def get_incident_report(connection, incident_date=None, incident_location=''):
@@ -407,10 +405,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        # incident_date, incident_location, persons_involved, description, action_taken
+        dict_results = {}
+        columns = ["id","incident_date", "incident_location", "persons_involved", "description", "action_taken"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
     
     @staticmethod
     def get_evaluation(connection, completed=None, administerer='', date_administered=None):
@@ -439,10 +439,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id","completed", "administerer", "test_type", "date_administered"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_transportation_information(connection, bus_transport=None, bus_company='', 
@@ -494,10 +496,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id","bus_transport", "bus_company", "bus_contact_phone", "picked_up", "pickup_person", "relationship_to_member", "primary_phone", "secondary_phone"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_caregiver(connection, name='', phone='', email='', 
@@ -540,10 +544,13 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        # id, name, phone, email, relationship, date_contacted, notes, group_attending, attending
+        dict_results = {}
+        columns = ["id", "name", "phone", "email", "relationship", "date_contacted", "notes", "group_attending", "attending"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_attending_caregiver(connection, caregiver_type='', sex='', race='', 
@@ -608,10 +615,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id", "caregiver_type", "sex", "race", "occupations", "support_group", "covid_vaccine_date", "allergies", "medications", "media_release", "start_date", "end_date", "general_notes", "participation", "robly"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_emergency_contact(connection, name='', relationship='', day_phone='', 
@@ -658,10 +667,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id", "name", "relationship", "day_phone", "evening_phone", "cell_phone", "email", "address", "completion_date"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_volunteer(connection, name='', phone='', address='', email='', 
@@ -717,10 +728,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id", "name", "phone", "address", "email", "referral_source", "background_check_date", "video_watched_date", "emergency_contacts", "media_release", "confidentiality", "training_level"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_applications(connection, birthday=None, occupation='', is_slp=None, 
@@ -767,10 +780,12 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id", "birthday", "occupation", "is_slp", "relevant_experience", "education", "interests_skills_hobbies", "languages_spoken", "will_substitute", "convicted_of_crime", "application_date"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
+
     
     @staticmethod
     def get_outreach(connection, contacted_date=None, staff_contacted='', 
@@ -821,10 +836,11 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        modified_results = []
-        for result in results:
-            modified_results.append(tuple(map(str,result)))
-        return modified_results
+        dict_results = {}
+        columns = ["id", "contacted_date", "staff_contacted", "organization", "org_type", "outreach_type", "target_location", "num_people", "robly", "notes"]
+        for i in range(len(columns)):
+            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        return dict_results
 
 class update_functions():
     @staticmethod
@@ -882,8 +898,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -950,8 +964,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1023,8 +1035,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1104,8 +1114,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1208,8 +1216,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1249,8 +1255,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1286,8 +1290,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1337,8 +1339,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1387,8 +1387,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1457,8 +1455,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1507,8 +1503,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1516,7 +1510,6 @@ class update_functions():
         connection, id, name=None, phone=None, address=None, email=None, referral_source=None, 
         background_check_date=None, video_watched_date=None, emergency_contacts=None, 
         media_release=None, confidentiality=None, training_level=None
-            
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Volunteer SET "
@@ -1568,8 +1561,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
 
@@ -1626,8 +1617,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
     @staticmethod
@@ -1679,8 +1668,6 @@ class update_functions():
         # Commit the transaction
         connection.commit()
         
-        if connection:
-            connection.close()
         return id
 
 class insert_functions():
@@ -1709,8 +1696,6 @@ class insert_functions():
         
         cursor.execute(insert_query, data)
         connection.commit()
-        if connection:
-            connection.close()
 
         return cursor.lastrowid
 
@@ -1735,8 +1720,6 @@ class insert_functions():
         ))
 
         connection.commit()
-        if connection:
-            connection.close()
 
         return cursor.lastrowid
 
