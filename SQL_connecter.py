@@ -1746,8 +1746,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_membership_enrollment_form(connection, sexual_orientation, race, income, living_status, 
@@ -1774,8 +1772,6 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
-        connection.close()
 
         return cursor.lastrowid
     
@@ -1809,8 +1805,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_incident_report(connection, incident_date, incident_location, persons_involved, description, action_taken):
@@ -1830,8 +1824,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_evaluation(connection, completed, administerer, test_type, date_administered):
@@ -1850,8 +1842,6 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
-        connection.close()
 
         return cursor.lastrowid
 
@@ -1875,8 +1865,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_caregiver(connection, name, phone, email, relationship, date_contacted, notes, group_attending, attending):
@@ -1895,8 +1883,6 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
-        connection.close()
 
         return cursor.lastrowid
 
@@ -1921,8 +1907,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_emergency_contact(connection, name, relationship, day_phone, evening_phone, cell_phone, email, address, completion_date):
@@ -1941,8 +1925,6 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
-        connection.close()
 
         return cursor.lastrowid
 
@@ -1966,8 +1948,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_application(connection, birthday, occupation, is_slp, relevant_experience, education, interests_skills_hobbies, 
@@ -1990,8 +1970,6 @@ class insert_functions():
         cursor.execute(insert_query, data)
         connection.commit()
 
-        connection.close()
-
         return cursor.lastrowid
 
     def insert_outreach(connection, contacted_date, staff_contacted, organization, org_type, outreach_type, target_location, 
@@ -2013,7 +1991,5 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
-        connection.close()
 
         return cursor.lastrowid
