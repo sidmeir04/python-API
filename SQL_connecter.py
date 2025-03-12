@@ -1,4 +1,5 @@
 import mysql.connector
+import json
 from mysql.connector import Error
 from datetime import date
 from datetime import datetime
@@ -14,7 +15,7 @@ def string_to_date(date_string: str) -> datetime.date:
 
 class get_functions():
     @staticmethod
-    def get_caller(connection, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
+    def get_caller(connection, id=None, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
         cursor = connection.cursor()
         call_date = string_to_date(call_date)
         follow_up_date = string_to_date(follow_up_date)
@@ -22,7 +23,11 @@ class get_functions():
         query = "SELECT * FROM caller WHERE 1=1"
         filters = []
         
-        # Append conditions based on provided arguments    
+        # Append conditions based on provided arguments 
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if staff_name:
             query += " AND staff LIKE %s"
             filters.append(f'%{staff_name}%')
@@ -65,10 +70,12 @@ class get_functions():
         columns = ["id", "staff", "caller_name", "caller_email", "call_date", "phone_number", "referral_type", "additional_notes", "tour_scheduled", "tour_not_scheduled_reason", "follow_up_date"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
     
     @staticmethod
-    def get_tour(connection,tour_date=None, attended=None, clinicians='', 
+    def get_tour(connection,id=None,tour_date=None, attended=None, clinicians='', 
                 strategies_used=None, aep_deadline=None, 
                 joined_after=None, likely_to_join=None, 
                 canceled=None):
@@ -79,6 +86,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if tour_date is not None:
             query += " AND tour_date = %s"
             filters.append(tour_date)
@@ -120,10 +131,12 @@ class get_functions():
         columns = ["id", "tour_date", "attended", "no_join_reason", "clinicians", "attendess", "interactions", "strategies_used", "aep_deadline", "joined_after", "likely_to_join", "additional_notes", "canceled", "cancel_reason"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
     
     @staticmethod
-    def get_member(connection, name='', age=None, dob=None, email='', 
+    def get_member(connection, id=None,name='', age=None, dob=None, email='', 
                 aep_completion_date=None, join_date=None, 
                 schedule=None, phone='', address='', 
                 county='', gender='', veteran=None, 
@@ -135,6 +148,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if name:
             query += " AND name LIKE %s"
             filters.append(f'%{name}%')
@@ -205,11 +222,19 @@ class get_functions():
         dict_results = {}
         columns = ["id", "name", "age", "dob", "email", "aep_completion_date", "join_date", "schedule", "phone", "address", "county", "gender", "veteran", "joined", "caregiver_needed", "adler_program", "member_info", "enrollment_form", "medical_history", "emergency_contact_one", "emergency_contact_two"]
         for i in range(len(columns)):
-            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+            if columns[i] == "member_info":  # Special handling for member_info
+                dict_results[columns[i]] = [
+                    json.loads(results[j][i]) if results[j][i] and results[j][i] != "None" else None
+                    for j in range(len(results))
+                ]
+            else:
+                dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
     
     @staticmethod
-    def get_membership_enrollment_form(connection, sexual_orientation='', race='', income=None, 
+    def get_membership_enrollment_form(connection, id=None,sexual_orientation='', race='', income=None, 
                                         living_status=None, grew_up='', 
                                         hearing_loss=None, hearing_aid=None, 
                                         aphasia_cause='', aphasia_onset=None, 
@@ -222,6 +247,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if sexual_orientation:
             query += " AND sexual_orientation LIKE %s"
             filters.append(f'%{sexual_orientation}%')
@@ -281,10 +310,12 @@ class get_functions():
         columns = ["id", "sexual_orientation", "race", "income", "living_status", "grew_up", "occupations", "prev_speech_therapy", "other_therapy", "hearing_loss", "hearing_aid", "aphasia_cause", "aphasia_onset", "brain_location", "medications", "filled_by", "completed_date", "patient_info"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
     
     @staticmethod
-    def get_medical_history_form(connection, physician_name='', specialty='', 
+    def get_medical_history_form(connection, id=None, physician_name='', specialty='', 
                                 physician_address='', physician_phone='', 
                                 aphasia_cause='', aphasia_onset=None, 
                                 stroke_location='', lesion_location='', 
@@ -301,6 +332,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if physician_name:
             query += " AND physician_name LIKE %s"
             filters.append(f'%{physician_name}%')
@@ -380,10 +415,12 @@ class get_functions():
         columns = ["id", "sexual_orientation", "race", "income", "living_status", "grew_up", "occupations", "prev_speech_therapy", "other_therapy", "hearing_loss", "hearing_aid", "aphasia_cause", "aphasia_onset", "brain_location", "medications", "filled_by", "completed_date", "patient_info"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
     
     @staticmethod
-    def get_incident_report(connection, incident_date=None, incident_location=''):
+    def get_incident_report(connection, id=None, incident_date=None, incident_location=''):
         cursor = connection.cursor()
         
         # Start building the base query
@@ -391,6 +428,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if incident_date is not None:
             query += " AND incident_date = %s"
             filters.append(incident_date)
@@ -410,10 +451,12 @@ class get_functions():
         columns = ["id","incident_date", "incident_location", "persons_involved", "description", "action_taken"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
     
     @staticmethod
-    def get_evaluation(connection, completed=None, administerer='', date_administered=None):
+    def get_evaluation(connection, id=None, completed=None, administerer='', date_administered=None):
         cursor = connection.cursor()
         
         # Start building the base query
@@ -421,6 +464,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if completed is not None:
             query += " AND completed = %s"
             filters.append(completed)
@@ -443,11 +490,13 @@ class get_functions():
         columns = ["id","completed", "administerer", "test_type", "date_administered"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
 
     
     @staticmethod
-    def get_transportation_information(connection, bus_transport=None, bus_company='', 
+    def get_transportation_information(connection, id=None, bus_transport=None, bus_company='', 
                                         bus_contact_phone='', picked_up=None, 
                                         pickup_person='', relationship_to_member='', 
                                         primary_phone='', secondary_phone=''):
@@ -458,6 +507,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if bus_transport is not None:
             query += " AND bus_transport = %s"
             filters.append(bus_transport)
@@ -500,11 +553,13 @@ class get_functions():
         columns = ["id","bus_transport", "bus_company", "bus_contact_phone", "picked_up", "pickup_person", "relationship_to_member", "primary_phone", "secondary_phone"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
 
     
     @staticmethod
-    def get_caregiver(connection, name='', phone='', email='', 
+    def get_caregiver(connection, id=None, name='', phone='', email='', 
                     date_contacted=None, group_attending='', 
                     attending=None):
         cursor = connection.cursor()
@@ -514,6 +569,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if name:
             query += " AND name LIKE %s"
             filters.append(f'%{name}%')
@@ -549,11 +608,13 @@ class get_functions():
         columns = ["id", "name", "phone", "email", "relationship", "date_contacted", "notes", "group_attending", "attending"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
 
     
     @staticmethod
-    def get_attending_caregiver(connection, caregiver_type='', sex='', race='', 
+    def get_attending_caregiver(connection, id=None, caregiver_type='', sex='', race='', 
                                 occupations='', support_group=None, 
                                 covid_vaccine_date=None, allergies='', 
                                 media_release=None, start_date=None, 
@@ -565,6 +626,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if caregiver_type:
             query += " AND caregiver_type LIKE %s"
             filters.append(f'%{caregiver_type}%')
@@ -619,11 +684,13 @@ class get_functions():
         columns = ["id", "caregiver_type", "sex", "race", "occupations", "support_group", "covid_vaccine_date", "allergies", "medications", "media_release", "start_date", "end_date", "general_notes", "participation", "robly"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
 
     
     @staticmethod
-    def get_emergency_contact(connection, name='', relationship='', day_phone='', 
+    def get_emergency_contact(connection, id=None, name='', relationship='', day_phone='', 
                             evening_phone='', cell_phone='', 
                             address='', completion_date=None):
         cursor = connection.cursor()
@@ -633,6 +700,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if name:
             query += " AND name LIKE %s"
             filters.append(f'%{name}%')
@@ -671,11 +742,13 @@ class get_functions():
         columns = ["id", "name", "relationship", "day_phone", "evening_phone", "cell_phone", "email", "address", "completion_date"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
 
     
     @staticmethod
-    def get_volunteer(connection, name='', phone='', address='', email='', 
+    def get_volunteer(connection, id=None, name='', phone='', address='', email='', 
                     background_check_date=None, video_watched_date=None, 
                     media_release=None, confidentiality=None, 
                     training_level=None):
@@ -686,6 +759,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if name:
             query += " AND name LIKE %s"
             filters.append(f'%{name}%')
@@ -732,11 +809,13 @@ class get_functions():
         columns = ["id", "name", "phone", "address", "email", "referral_source", "background_check_date", "video_watched_date", "emergency_contacts", "media_release", "confidentiality", "training_level"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()
         return dict_results
 
     
     @staticmethod
-    def get_applications(connection, birthday=None, occupation='', is_slp=None, 
+    def get_applications(connection, id=None, birthday=None, occupation='', is_slp=None, 
                         languages_spoken='', will_substitute=None, 
                         convicted_of_crime=None, application_date=None):
         cursor = connection.cursor()
@@ -746,6 +825,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+
         if birthday is not None:
             query += " AND birthday = %s"
             filters.append(birthday)
@@ -784,11 +867,13 @@ class get_functions():
         columns = ["id", "birthday", "occupation", "is_slp", "relevant_experience", "education", "interests_skills_hobbies", "languages_spoken", "will_substitute", "convicted_of_crime", "application_date"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()    
         return dict_results
 
     
     @staticmethod
-    def get_outreach(connection, contacted_date=None, staff_contacted='', 
+    def get_outreach(connection, id=None, contacted_date=None, staff_contacted='', 
                     organization='', org_type='', outreach_type='', 
                     target_location='', num_people=None, robly=None):
         cursor = connection.cursor()
@@ -798,6 +883,10 @@ class get_functions():
         filters = []
         
         # Append conditions based on provided arguments
+        if id is not None:
+            query += " AND id = %s"
+            filters.append(id)
+            
         if contacted_date is not None:
             query += " AND contacted_date = %s"
             filters.append(contacted_date)
@@ -840,6 +929,8 @@ class get_functions():
         columns = ["id", "contacted_date", "staff_contacted", "organization", "org_type", "outreach_type", "target_location", "num_people", "robly", "notes"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+        if connection:
+            connection.close()    
         return dict_results
 
 class update_functions():
@@ -897,7 +988,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -963,15 +1055,16 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
     def update_member(
             connection, id, name=None, age=None, dob=None, email=None, aep_completion_date=None, 
             join_date=None, schedule=None, phone=None, address=None, county=None, 
-            gender=None, veteran=None, joined=None, caregiver_needed=None, 
-            alder_program=None
+            gender=None, veteran=None, joined=None, caregiver_needed=None, medical_history = None,
+            alder_program=None, emergency_contact_one = None, emergency_contact_two = None, enrollment_form = None
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Member SET "
@@ -1022,6 +1115,18 @@ class update_functions():
         if alder_program:
             update_query += "alder_program = %s, "
             update_values.append(alder_program)
+        if medical_history:
+            update_query += "medical_history = %s, "
+            update_values.append(medical_history)
+        if emergency_contact_one:
+            update_query += "emergency_contact_one = %s, "
+            update_values.append(emergency_contact_one)
+        if emergency_contact_two:
+            update_query += "emergency_contact_two = %s, "
+            update_values.append(emergency_contact_two)
+        if enrollment_form:
+            update_query += "enrollment_form = %s, "
+            update_values.append(enrollment_form)
 
         update_query = update_query.rstrip(", ")
 
@@ -1034,7 +1139,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1113,7 +1219,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1215,7 +1322,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1254,7 +1362,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1289,7 +1398,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1338,7 +1448,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1386,7 +1497,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1454,7 +1566,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1502,7 +1615,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1560,7 +1674,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
 
@@ -1616,7 +1731,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
     @staticmethod
@@ -1667,7 +1783,8 @@ class update_functions():
 
         # Commit the transaction
         connection.commit()
-        
+        if connection:
+            connection.close()
         return id
 
 class insert_functions():
@@ -1696,7 +1813,8 @@ class insert_functions():
         
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_tour(
@@ -1720,7 +1838,8 @@ class insert_functions():
         ))
 
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_member(connection, name, age, dob, email, aep_completion_date, join_date, schedule, 
@@ -1745,7 +1864,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_membership_enrollment_form(connection, sexual_orientation, race, income, living_status, 
@@ -1772,7 +1892,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
     
     def insert_medical_history_form(connection, physician_name, specialty, physician_address, physician_phone, 
@@ -1804,7 +1925,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_incident_report(connection, incident_date, incident_location, persons_involved, description, action_taken):
@@ -1823,7 +1945,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_evaluation(connection, completed, administerer, test_type, date_administered):
@@ -1842,7 +1965,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_transportation_information(connection, bus_transport, bus_company, bus_contact_phone, picked_up,
@@ -1864,7 +1988,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_caregiver(connection, name, phone, email, relationship, date_contacted, notes, group_attending, attending):
@@ -1883,7 +2008,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_attending_caregiver(connection, caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, 
@@ -1906,7 +2032,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_emergency_contact(connection, name, relationship, day_phone, evening_phone, cell_phone, email, address, completion_date):
@@ -1925,7 +2052,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_volunteer(connection, name, phone, address, email, referral_source, background_check_date, 
@@ -1947,7 +2075,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_application(connection, birthday, occupation, is_slp, relevant_experience, education, interests_skills_hobbies, 
@@ -1969,7 +2098,8 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid
 
     def insert_outreach(connection, contacted_date, staff_contacted, organization, org_type, outreach_type, target_location, 
@@ -1991,5 +2121,6 @@ class insert_functions():
 
         cursor.execute(insert_query, data)
         connection.commit()
-
+        if connection:
+            connection.close()
         return cursor.lastrowid

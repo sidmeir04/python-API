@@ -1,37 +1,41 @@
 from flask import Flask, jsonify, request
 import mysql.connector
+from mysql.connector import pooling
 from mysql.connector import Error
 from SQL_connecter import *
 
 app = Flask(__name__)
 
-host = "localhost"
-user = "connector"
-password = "password"
-database = "adler_aphasia_center"
-connection = None
-try:
-    connection = mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database,
-        auth_plugin="mysql_native_password"
-    )
-except Error as e:
-    print(f"The error '{e}' occurred")
+db_config = {
+    "host": "localhost",
+    "user": "connector",
+    "password": "password",
+    "database": "adler_aphasia_center",
+    "auth_plugin": "mysql_native_password"
+}
 
-# Home route
-@app.route('/')
-def home():
-    return "Welcome to the Flask API!"
+# Create a connection pool
+try:
+    pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=10, **db_config)
+    print("Database connection pool created successfully.")
+except mysql.connector.Error as e:
+    print(f"Error creating MySQL connection pool: {e}")
+    pool = None
+
+# Function to get a connection from the pool
+def get_connection():
+    if pool:
+        return pool.get_connection()
+    else:
+        raise ConnectionError("No database connection pool available.")
 
 # def get_caller(connection, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
-@app.route('/get_caller', methods=['GET'])
+@app.route('/get_caller', methods=['POST'])
 def get_caller():
     caller_data = request.get_json()
     caller = get_functions.get_caller(
-        connection=connection,
+        connection=get_connection(),
+        id=caller_data.get('id', None),
         staff_name=caller_data.get('staff_name', ''),
         caller_name=caller_data.get('caller_name', ''),
         caller_email=caller_data.get('caller_email', ''),
@@ -43,15 +47,12 @@ def get_caller():
     )
     return jsonify(caller), 200
 
-# def get_tour(connection,tour_date=None, attended=None, clinicians='', 
-#                 strategies_used=None, aep_deadline=None, 
-#                 joined_after=None, likely_to_join=None, 
-#                 canceled=None):@app.route('/get_tour', methods=['GET'])
-@app.route('/get_tour', methods=['GET'])
+@app.route('/get_tour', methods=['POST'])
 def get_tour():
     tour_data = request.get_json()
     tour = get_functions.get_tour(
-        connection=connection,
+        connection=get_connection(),
+        id=tour_data.get('id', None),
         tour_date=tour_data.get('tour_date', None),
         attended=tour_data.get('attended', None),
         clinicians=tour_data.get('clinicians', ''),
@@ -63,16 +64,12 @@ def get_tour():
     )
     return jsonify(tour), 200
 
-# def get_member(connection, name='', age=None, dob=None, email='', 
-#                 aep_completion_date=None, join_date=None, 
-#                 schedule=None, phone='', address='', 
-#                 county='', gender='', veteran=None, 
-#                 joined=None, caregiver_needed=None, alder_program=''):
-@app.route('/get_member', methods=['GET'])
+@app.route('/get_member', methods=['POST'])
 def get_member():
     member_data = request.get_json()
     member = get_functions.get_member(
-        connection=connection,
+        connection=get_connection(),
+        id=member_data.get('id', None),
         name=member_data.get('name', ''),
         age=member_data.get('age', None),
         dob=member_data.get('dob', None),
@@ -84,22 +81,17 @@ def get_member():
         gender=member_data.get('gender', ''),
         veteran=member_data.get('veteran', None),
         joined=member_data.get('joined', None),
-        caregiver_needed=member_data.get('caregiver_needed', ''),
+        caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', ''),
     )
     return jsonify(member), 200
 
-# def get_membership_enrollment_form(connection, sexual_orientation='', race='', income=None, 
-#                                         living_status=None, grew_up='', 
-#                                         hearing_loss=None, hearing_aid=None, 
-#                                         aphasia_cause='', aphasia_onset=None, 
-#                                         brain_location='', filled_by='', 
-#                                         completed_date=None):
-@app.route('/get_membership_enrollment_form', methods=['GET'])
+@app.route('/get_membership_enrollment_form', methods=['POST'])
 def get_membership_enrollment_form():
     membership_enrollment_form_data = request.get_json()
     membership_enrollment_form = get_functions.get_membership_enrollment_form(
-        connection=connection,
+        connection=get_connection(),
+        id=membership_enrollment_form_data.get('id', None),
         sexual_orientation=membership_enrollment_form_data.get('sexual_orientation', ''),
         race=membership_enrollment_form_data.get('race', ''),
         income=membership_enrollment_form_data.get('income', None),
@@ -115,21 +107,12 @@ def get_membership_enrollment_form():
     )
     return jsonify(membership_enrollment_form), 200
 
-# def get_medical_history_form(connection, physician_name='', specialty='', 
-#                                 physician_address='', physician_phone='', 
-#                                 aphasia_cause='', aphasia_onset=None, 
-#                                 stroke_location='', lesion_location='', 
-#                                 primary_diagnosis='', secondary_diagnosis='', 
-#                                 seizure_history=None, last_seizure_date=None, 
-#                                 anti_seizure_med=None, hearing_aid=None, 
-#                                 swallowing_strategies=None, 
-#                                 other_visual_impairments='',
-#                                 completion_date=None):
-@app.route('/get_medical_history_form', methods=['GET'])
+@app.route('/get_medical_history_form', methods=['POST'])
 def get_medical_history_form():
     medical_history_form_data = request.get_json()
     medical_history_form = get_functions.get_medical_history_form(
-        connection=connection,
+        connection=get_connection(),
+        id=medical_history_form_data.get('id', None),
         physician_name=medical_history_form_data.get('physician_name', ''),
         specialty=medical_history_form_data.get('specialty', ''),
         physician_address=medical_history_form_data.get('physician_address', ''),
@@ -150,32 +133,35 @@ def get_medical_history_form():
     )
     return jsonify(medical_history_form), 200
 
-@app.route('/get_incident_report', methods=['GET'])
+@app.route('/get_incident_report', methods=['POST'])
 def get_incident_report():
     incident_report_data = request.get_json()
     incident_report = get_functions.get_incident_report(
-        connection=connection,
+        connection=get_connection(),
+        id=incident_report_data.get('id', None),
         incident_date=incident_report_data.get('incident_date', None),
         incident_location=incident_report_data.get('incident_location', ''),
     )
     return jsonify(incident_report), 200
 
-@app.route('/get_evaluation', methods=['GET'])
+@app.route('/get_evaluation', methods=['POST'])
 def get_evaluation():
     evaluation_data = request.get_json()
     evaluation = get_functions.get_evaluation(
-        connection=connection,
+        connection=get_connection(),
+        id=evaluation_data.get('id', None),
         completed=evaluation_data.get('completed', None),
         administerer=evaluation_data.get('administerer', ''),
         date_administered=evaluation_data.get('date_administered', None),
     )
     return jsonify(evaluation), 200
 
-@app.route('/get_transportation_information', methods=['GET'])
+@app.route('/get_transportation_information', methods=['POST'])
 def get_transportation_information():
     transportation_data = request.get_json()
     transportation_information = get_functions.get_transportation_information(
-        connection=connection,
+        connection=get_connection(),
+        id=transportation_data.get('id', None),
         bus_transport=transportation_data.get('bus_transport', None),
         bus_company=transportation_data.get('bus_company', ''),
         bus_contact_phone=transportation_data.get('bus_contact_phone', ''),
@@ -187,11 +173,12 @@ def get_transportation_information():
     )
     return jsonify(transportation_information), 200
 
-@app.route('/get_caregiver', methods=['GET'])
+@app.route('/get_caregiver', methods=['POST'])
 def get_caregiver():
     caregiver_data = request.get_json()
     caregiver = get_functions.get_caregiver(
-        connection=connection,
+        connection=get_connection(),
+        id=caregiver_data.get('id', None),
         name=caregiver_data.get('name', ''),
         phone=caregiver_data.get('phone', ''),
         email=caregiver_data.get('email', ''),
@@ -201,11 +188,12 @@ def get_caregiver():
     )
     return jsonify(caregiver), 200
 
-@app.route('/get_attending_caregiver', methods=['GET'])
+@app.route('/get_attending_caregiver', methods=['POST'])
 def get_attending_caregiver():
     attending_caregiver_data = request.get_json()
     attending_caregiver = get_functions.get_attending_caregiver(
-        connection=connection,
+        connection=get_connection(),
+        id=attending_caregiver.get('id', None),
         caregiver_type=attending_caregiver_data.get('caregiver_type', ''),
         sex=attending_caregiver_data.get('sex', ''),
         race=attending_caregiver_data.get('race', ''),
@@ -220,11 +208,12 @@ def get_attending_caregiver():
     )
     return jsonify(attending_caregiver), 200
 
-@app.route('/get_emergency_contact', methods=['GET'])
+@app.route('/get_emergency_contact', methods=['POST'])
 def get_emergency_contact():
     emergency_contact_data = request.get_json()
     emergency_contact = get_functions.get_emergency_contact(
-        connection=connection,
+        connection=get_connection(),
+        id=emergency_contact_data.get('id', None),
         name=emergency_contact_data.get('name', ''),
         relationship=emergency_contact_data.get('relationship', ''),
         day_phone=emergency_contact_data.get('day_phone', ''),
@@ -235,11 +224,12 @@ def get_emergency_contact():
     )
     return jsonify(emergency_contact), 200
 
-@app.route('/get_volunteer', methods=['GET'])
+@app.route('/get_volunteer', methods=['POST'])
 def get_volunteer():
     volunteer_data = request.get_json()
     volunteer = get_functions.get_volunteer(
-        connection=connection,
+        connection=get_connection(),
+        id=volunteer_data.get('id', None),
         name=volunteer_data.get('name', ''),
         phone=volunteer_data.get('phone', ''),
         address=volunteer_data.get('address', ''),
@@ -252,11 +242,12 @@ def get_volunteer():
     )
     return jsonify(volunteer), 200
 
-@app.route('/get_applications', methods=['GET'])
+@app.route('/get_applications', methods=['POST'])
 def get_applications():
     applications_data = request.get_json()
     applications = get_functions.get_applications(
-        connection=connection,
+        connection=get_connection(),
+        id=applications_data.get('id', None),
         birthday=applications_data.get('birthday', None),
         occupation=applications_data.get('occupation', ''),
         is_slp=applications_data.get('is_slp', None),
@@ -267,11 +258,12 @@ def get_applications():
     )
     return jsonify(applications), 200
 
-@app.route('/get_outreach', methods=['GET'])
+@app.route('/get_outreach', methods=['POST'])
 def get_outreach():
     outreach_data = request.get_json()
     outreach = get_functions.get_outreach(
-        connection=connection,
+        connection=get_connection(),
+        id=outreach_data.get('id', None),
         contacted_date=outreach_data.get('contacted_date', None),
         staff_contacted=outreach_data.get('staff_contacted', ''),
         organization=outreach_data.get('organization', ''),
@@ -287,7 +279,7 @@ def get_outreach():
 def update_caller():
     caller_data = request.get_json()
     update_functions.update_caller(
-        connection=connection,
+        connection=get_connection(),
         id=caller_data.get('id'),
         staff=caller_data.get('staff', None),
         caller_name=caller_data.get('caller_name', None),
@@ -306,7 +298,7 @@ def update_caller():
 def update_tour():
     tour_data = request.get_json()
     update_functions.update_tour(
-        connection=connection,
+        connection=get_connection(),
         id=tour_data.get('id'),
         tour_date=tour_data.get('tour_date', None),
         attended=tour_data.get('attended', None),
@@ -328,7 +320,7 @@ def update_tour():
 def update_member():
     member_data = request.get_json()
     update_functions.update_member(
-        connection=connection,
+        connection=get_connection(),
         id=member_data.get('id'),
         name=member_data.get('name', None),
         age=member_data.get('age', None),
@@ -345,6 +337,10 @@ def update_member():
         joined=member_data.get('joined', None),
         caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', None),
+        medical_history=member_data.get('medical_history', None),
+        emergency_contact_one=member_data.get('emergency_contact_one', None),
+        emergency_contact_two=member_data.get('emergency_contact_two', None),
+        enrollment_form=member_data.get('enrollment_form', None)
     )
     return '', 200
 
@@ -352,7 +348,7 @@ def update_member():
 def update_membership_enrollment_form():
     enrollment_form_data = request.get_json()
     update_functions.update_membership_enrollment_form(
-        connection=connection,
+        connection=get_connection(),
         id=enrollment_form_data.get('id'),
         sexual_orientation=enrollment_form_data.get('sexual_orientation', None),
         race=enrollment_form_data.get('race', None),
@@ -378,7 +374,7 @@ def update_membership_enrollment_form():
 def update_medical_history_form():
     medical_history_data = request.get_json()
     update_functions.update_medical_history_form(
-        connection=connection,
+        connection=get_connection(),
         id=medical_history_data.get('id'),
         physician_name=medical_history_data.get('physician_name', None),
         specialty=medical_history_data.get('specialty', None),
@@ -411,7 +407,7 @@ def update_medical_history_form():
 def update_incident_report():
     incident_report_data = request.get_json()
     update_functions.update_incident_report(
-        connection=connection,
+        connection=get_connection(),
         id=incident_report_data.get('id'),
         incident_date=incident_report_data.get('incident_date', None),
         incident_location=incident_report_data.get('incident_location', None),
@@ -425,7 +421,7 @@ def update_incident_report():
 def update_evaluation():
     evaluation_data = request.get_json()
     update_functions.update_evaluation(
-        connection=connection,
+        connection=get_connection(),
         id=evaluation_data.get('id'),
         completed=evaluation_data.get('completed', None),
         administerer=evaluation_data.get('administerer', None),
@@ -438,7 +434,7 @@ def update_evaluation():
 def update_transportation_information():
     transportation_data = request.get_json()
     update_functions.update_transportation_information(
-        connection=connection,
+        connection=get_connection(),
         id=transportation_data.get('id'),
         bus_transport=transportation_data.get('bus_transport', None),
         bus_company=transportation_data.get('bus_company', None),
@@ -455,7 +451,7 @@ def update_transportation_information():
 def update_caregiver():
     caregiver_data = request.get_json()
     update_functions.update_caregiver(
-        connection=connection,
+        connection=get_connection(),
         id=caregiver_data.get('id'),
         name=caregiver_data.get('name', None),
         phone=caregiver_data.get('phone', None),
@@ -472,7 +468,7 @@ def update_caregiver():
 def update_attending_caregiver():
     attending_caregiver_data = request.get_json()
     update_functions.update_attending_caregiver(
-        connection=connection,
+        connection=get_connection(),
         id=attending_caregiver_data.get('id'),
         caregiver_type=attending_caregiver_data.get('caregiver_type', None),
         sex=attending_caregiver_data.get('sex', None),
@@ -495,7 +491,7 @@ def update_attending_caregiver():
 def update_emergency_contact():
     emergency_contact_data = request.get_json()
     update_functions.update_emergency_contact(
-        connection=connection,
+        connection=get_connection(),
         id=emergency_contact_data.get('id'),
         name=emergency_contact_data.get('name', None),
         relationship=emergency_contact_data.get('relationship', None),
@@ -512,7 +508,7 @@ def update_emergency_contact():
 def update_volunteer():
     volunteer_data = request.get_json()
     update_functions.update_volunteer(
-        connection=connection,
+        connection=get_connection(),
         id=volunteer_data.get('id'),
         name=volunteer_data.get('name', None),
         phone=volunteer_data.get('phone', None),
@@ -532,7 +528,7 @@ def update_volunteer():
 def update_applications():
     application_data = request.get_json()
     update_functions.update_applications(
-        connection=connection,
+        connection=get_connection(),
         id=application_data.get('id'),
         birthday=application_data.get('birthday', None),
         occupation=application_data.get('occupation', None),
@@ -551,7 +547,7 @@ def update_applications():
 def update_outreach():
     outreach_data = request.get_json()
     update_functions.update_outreach(
-        connection=connection,
+        connection=get_connection(),
         id=outreach_data.get('id'),
         contacted_date=outreach_data.get('contacted_date', None),
         staff_contacted=outreach_data.get('staff_contacted', None),
@@ -569,7 +565,7 @@ def update_outreach():
 def insert_caller():
     caller_data = request.get_json()
     insert_functions.insert_caller(
-        connection=connection,
+        connection=get_connection(),
         staff=caller_data.get('staff', None),
         caller_name=caller_data.get('caller_name', None),
         caller_email=caller_data.get('caller_email', None),
@@ -587,7 +583,7 @@ def insert_caller():
 def insert_tour():
     tour_data = request.get_json()
     insert_functions.insert_tour(
-        connection=connection,
+        connection=get_connection(),
         id=tour_data.get('id'),
         tour_date=tour_data.get('tour_date', None),
         attended=tour_data.get('attended', None),
@@ -609,7 +605,7 @@ def insert_tour():
 def insert_member():
     member_data = request.get_json()
     insert_functions.insert_member(
-        connection=connection,
+        connection=get_connection(),
         id=member_data.get('id'),
         name=member_data.get('name', None),
         age=member_data.get('age', None),
@@ -633,7 +629,7 @@ def insert_member():
 def insert_membership_enrollment_form():
     enrollment_form_data = request.get_json()
     insert_functions.insert_membership_enrollment_form(
-        connection=connection,
+        connection=get_connection(),
         id=enrollment_form_data.get('id'),
         sexual_orientation=enrollment_form_data.get('sexual_orientation', None),
         race=enrollment_form_data.get('race', None),
@@ -659,7 +655,7 @@ def insert_membership_enrollment_form():
 def insert_medical_history_form():
     medical_history_data = request.get_json()
     insert_functions.insert_medical_history_form(
-        connection=connection,
+        connection=get_connection(),
         id=medical_history_data.get('id'),
         physician_name=medical_history_data.get('physician_name', None),
         specialty=medical_history_data.get('specialty', None),
@@ -692,7 +688,7 @@ def insert_medical_history_form():
 def insert_incident_report():
     incident_report_data = request.get_json()
     insert_functions.insert_incident_report(
-        connection=connection,
+        connection=get_connection(),
         id=incident_report_data.get('id'),
         incident_date=incident_report_data.get('incident_date', None),
         incident_location=incident_report_data.get('incident_location', None),
@@ -706,7 +702,7 @@ def insert_incident_report():
 def insert_evaluation():
     evaluation_data = request.get_json()
     insert_functions.insert_evaluation(
-        connection=connection,
+        connection=get_connection(),
         id=evaluation_data.get('id'),
         completed=evaluation_data.get('completed', None),
         administerer=evaluation_data.get('administerer', None),
@@ -719,7 +715,7 @@ def insert_evaluation():
 def insert_transportation_information():
     transportation_data = request.get_json()
     insert_functions.insert_transportation_information(
-        connection=connection,
+        connection=get_connection(),
         id=transportation_data.get('id'),
         bus_transport=transportation_data.get('bus_transport', None),
         bus_company=transportation_data.get('bus_company', None),
@@ -736,7 +732,7 @@ def insert_transportation_information():
 def insert_caregiver():
     caregiver_data = request.get_json()
     insert_functions.insert_caregiver(
-        connection=connection,
+        connection=get_connection(),
         id=caregiver_data.get('id'),
         name=caregiver_data.get('name', None),
         phone=caregiver_data.get('phone', None),
@@ -753,7 +749,7 @@ def insert_caregiver():
 def insert_attending_caregiver():
     attending_caregiver_data = request.get_json()
     insert_functions.insert_attending_caregiver(
-        connection=connection,
+        connection=get_connection(),
         id=attending_caregiver_data.get('id'),
         caregiver_type=attending_caregiver_data.get('caregiver_type', None),
         sex=attending_caregiver_data.get('sex', None),
@@ -776,7 +772,7 @@ def insert_attending_caregiver():
 def insert_emergency_contact():
     emergency_contact_data = request.get_json()
     insert_functions.insert_emergency_contact(
-        connection=connection,
+        connection=get_connection(),
         id=emergency_contact_data.get('id'),
         name=emergency_contact_data.get('name', None),
         relationship=emergency_contact_data.get('relationship', None),
@@ -793,7 +789,7 @@ def insert_emergency_contact():
 def insert_volunteer():
     volunteer_data = request.get_json()
     insert_functions.insert_volunteer(
-        connection=connection,
+        connection=get_connection(),
         id=volunteer_data.get('id'),
         name=volunteer_data.get('name', None),
         phone=volunteer_data.get('phone', None),
@@ -813,7 +809,7 @@ def insert_volunteer():
 def insert_applications():
     application_data = request.get_json()
     insert_functions.insert_applications(
-        connection=connection,
+        connection=get_connection(),
         id=application_data.get('id'),
         birthday=application_data.get('birthday', None),
         occupation=application_data.get('occupation', None),
@@ -832,7 +828,7 @@ def insert_applications():
 def insert_outreach():
     outreach_data = request.get_json()
     insert_functions.insert_outreach(
-        connection=connection,
+        connection=get_connection(),
         id=outreach_data.get('id'),
         contacted_date=outreach_data.get('contacted_date', None),
         staff_contacted=outreach_data.get('staff_contacted', None),
