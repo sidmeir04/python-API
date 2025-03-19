@@ -278,7 +278,7 @@ def get_outreach():
 
 @app.route('/update_caller', methods=['POST'])
 def update_caller():
-    caller_data = request.get_json()
+    caller_data = json.loads(request.get_json()[0])
     update_functions.update_caller(
         connection=get_connection(),
         id=caller_data.get('id'),
@@ -297,7 +297,7 @@ def update_caller():
 
 @app.route('/update_tour', methods=['POST'])
 def update_tour():
-    tour_data = request.get_json()
+    tour_data = json.loads(request.get_json()[0])
     update_functions.update_tour(
         connection=get_connection(),
         id=tour_data.get('id'),
@@ -319,7 +319,8 @@ def update_tour():
 
 @app.route('/update_member', methods=['POST'])
 def update_member():
-    member_data = request.get_json()
+    member_data = json.loads(request.get_json()[0])
+    print(member_data)
     update_functions.update_member(
         connection=get_connection(),
         id=member_data.get('id'),
@@ -347,7 +348,7 @@ def update_member():
 
 @app.route('/update_membership_enrollment_form', methods=['POST'])
 def update_membership_enrollment_form():
-    enrollment_form_data = request.get_json()
+    enrollment_form_data = json.loads(request.get_json()[0])
     update_functions.update_membership_enrollment_form(
         connection=get_connection(),
         id=enrollment_form_data.get('id'),
@@ -373,7 +374,7 @@ def update_membership_enrollment_form():
 
 @app.route('/update_medical_history_form', methods=['POST'])
 def update_medical_history_form():
-    medical_history_data = request.get_json()
+    medical_history_data = json.loads(request.get_json()[0])
     update_functions.update_medical_history_form(
         connection=get_connection(),
         id=medical_history_data.get('id'),
@@ -406,7 +407,7 @@ def update_medical_history_form():
 
 @app.route('/update_incident_report', methods=['POST'])
 def update_incident_report():
-    incident_report_data = request.get_json()
+    incident_report_data = json.loads(request.get_json()[0])
     update_functions.update_incident_report(
         connection=get_connection(),
         id=incident_report_data.get('id'),
@@ -420,7 +421,7 @@ def update_incident_report():
 
 @app.route('/update_evaluation', methods=['POST'])
 def update_evaluation():
-    evaluation_data = request.get_json()
+    evaluation_data = json.loads(request.get_json()[0])
     update_functions.update_evaluation(
         connection=get_connection(),
         id=evaluation_data.get('id'),
@@ -433,7 +434,7 @@ def update_evaluation():
 
 @app.route('/update_transportation_information', methods=['POST'])
 def update_transportation_information():
-    transportation_data = request.get_json()
+    transportation_data = json.loads(request.get_json()[0])
     update_functions.update_transportation_information(
         connection=get_connection(),
         id=transportation_data.get('id'),
@@ -450,7 +451,7 @@ def update_transportation_information():
 
 @app.route('/update_caregiver', methods=['POST'])
 def update_caregiver():
-    caregiver_data = request.get_json()
+    caregiver_data = json.loads(request.get_json()[0])
     update_functions.update_caregiver(
         connection=get_connection(),
         id=caregiver_data.get('id'),
@@ -467,7 +468,7 @@ def update_caregiver():
 
 @app.route('/update_attending_caregiver', methods=['POST'])
 def update_attending_caregiver():
-    attending_caregiver_data = request.get_json()
+    attending_caregiver_data = json.loads(request.get_json()[0])
     update_functions.update_attending_caregiver(
         connection=get_connection(),
         id=attending_caregiver_data.get('id'),
@@ -490,7 +491,7 @@ def update_attending_caregiver():
 
 @app.route('/update_emergency_contact', methods=['POST'])
 def update_emergency_contact():
-    emergency_contact_data = request.get_json()
+    emergency_contact_data = json.loads(request.get_json()[0])
     update_functions.update_emergency_contact(
         connection=get_connection(),
         id=emergency_contact_data.get('id'),
@@ -507,7 +508,7 @@ def update_emergency_contact():
 
 @app.route('/update_volunteer', methods=['POST'])
 def update_volunteer():
-    volunteer_data = request.get_json()
+    volunteer_data = json.loads(request.get_json()[0])
     update_functions.update_volunteer(
         connection=get_connection(),
         id=volunteer_data.get('id'),
@@ -527,7 +528,7 @@ def update_volunteer():
 
 @app.route('/update_applications', methods=['POST'])
 def update_applications():
-    application_data = request.get_json()
+    application_data = json.loads(request.get_json()[0])
     update_functions.update_applications(
         connection=get_connection(),
         id=application_data.get('id'),
@@ -546,7 +547,7 @@ def update_applications():
 
 @app.route('/update_outreach', methods=['POST'])
 def update_outreach():
-    outreach_data = request.get_json()
+    outreach_data = json.loads(request.get_json()[0])
     update_functions.update_outreach(
         connection=get_connection(),
         id=outreach_data.get('id'),
@@ -565,7 +566,7 @@ def update_outreach():
 @app.route('/insert_caller', methods=['POST'])
 def insert_caller():
     caller_data = json.loads(request.get_json()[0])
-    insert_functions.insert_caller(
+    id = insert_functions.insert_caller(
         connection=get_connection(),
         staff=caller_data.get('staff', None),
         caller_name=caller_data.get('caller_name', None),
@@ -578,12 +579,12 @@ def insert_caller():
         tour_not_scheduled_reason=caller_data.get('tour_not_scheduled_reason', None),
         follow_up_date=caller_data.get('follow_up_date', None)
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_tour', methods=['POST'])
 def insert_tour():
     tour_data = json.loads(request.get_json()[0])
-    insert_functions.insert_tour(
+    id = insert_functions.insert_tour(
         connection=get_connection(),
         tour_date=tour_data.get('tour_date', None),
         attended=tour_data.get('attended', None),
@@ -599,13 +600,13 @@ def insert_tour():
         canceled=tour_data.get('canceled', None),
         cancel_reason=tour_data.get('cancel_reason', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_member', methods=['POST'])
 def insert_member():
     member_data = json.loads(request.get_json()[0])
     print(member_data)
-    insert_functions.insert_member(
+    id = insert_functions.insert_member(
         connection=get_connection(),
         name=member_data.get('name', None),
         age=member_data.get('age', None),
@@ -623,12 +624,12 @@ def insert_member():
         caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_membership_enrollment_form', methods=['POST'])
 def insert_membership_enrollment_form():
     enrollment_form_data = json.loads(request.get_json()[0])
-    insert_functions.insert_membership_enrollment_form(
+    id = insert_functions.insert_membership_enrollment_form(
         connection=get_connection(),
         sexual_orientation=enrollment_form_data.get('sexual_orientation', None),
         race=enrollment_form_data.get('race', None),
@@ -648,12 +649,12 @@ def insert_membership_enrollment_form():
         filled_by=enrollment_form_data.get('filled_by', None),
         completed_date=enrollment_form_data.get('completed_date', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_medical_history_form', methods=['POST'])
 def insert_medical_history_form():
     medical_history_data = json.loads(request.get_json()[0])
-    insert_functions.insert_medical_history_form(
+    id = insert_functions.insert_medical_history_form(
         connection=get_connection(),
         physician_name=medical_history_data.get('physician_name', None),
         specialty=medical_history_data.get('specialty', None),
@@ -680,12 +681,12 @@ def insert_medical_history_form():
         other_visual_impairments=medical_history_data.get('other_visual_impairments', None),
         completion_date=medical_history_data.get('completion_date', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_incident_report', methods=['POST'])
 def insert_incident_report():
     incident_report_data = json.loads(request.get_json()[0])
-    insert_functions.insert_incident_report(
+    id = insert_functions.insert_incident_report(
         connection=get_connection(),
         incident_date=incident_report_data.get('incident_date', None),
         incident_location=incident_report_data.get('incident_location', None),
@@ -693,24 +694,24 @@ def insert_incident_report():
         description=incident_report_data.get('description', None),
         action_taken=incident_report_data.get('action_taken', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_evaluation', methods=['POST'])
 def insert_evaluation():
     evaluation_data = json.loads(request.get_json()[0])
-    insert_functions.insert_evaluation(
+    id = insert_functions.insert_evaluation(
         connection=get_connection(),
         completed=evaluation_data.get('completed', None),
         administerer=evaluation_data.get('administerer', None),
         test_type=evaluation_data.get('test_type', None),
         date_administered=evaluation_data.get('date_administered', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_transportation_information', methods=['POST'])
 def insert_transportation_information():
     transportation_data = json.loads(request.get_json()[0])
-    insert_functions.insert_transportation_information(
+    id = insert_functions.insert_transportation_information(
         connection=get_connection(),
         bus_transport=transportation_data.get('bus_transport', None),
         bus_company=transportation_data.get('bus_company', None),
@@ -721,12 +722,12 @@ def insert_transportation_information():
         primary_phone=transportation_data.get('primary_phone', None),
         secondary_phone=transportation_data.get('secondary_phone', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_caregiver', methods=['POST'])
 def insert_caregiver():
     caregiver_data = json.loads(request.get_json()[0])
-    insert_functions.insert_caregiver(
+    id = insert_functions.insert_caregiver(
         connection=get_connection(),
         name=caregiver_data.get('name', None),
         phone=caregiver_data.get('phone', None),
@@ -737,12 +738,12 @@ def insert_caregiver():
         group_attending=caregiver_data.get('group_attending', None),
         attending=caregiver_data.get('attending', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_attending_caregiver', methods=['POST'])
 def insert_attending_caregiver():
     attending_caregiver_data = json.loads(request.get_json()[0])
-    insert_functions.insert_attending_caregiver(
+    id = insert_functions.insert_attending_caregiver(
         connection=get_connection(),
         caregiver_type=attending_caregiver_data.get('caregiver_type', None),
         sex=attending_caregiver_data.get('sex', None),
@@ -759,12 +760,12 @@ def insert_attending_caregiver():
         participation=attending_caregiver_data.get('participation', None),
         robly=attending_caregiver_data.get('robly', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_emergency_contact', methods=['POST'])
 def insert_emergency_contact():
     emergency_contact_data = json.loads(request.get_json()[0])
-    insert_functions.insert_emergency_contact(
+    id = insert_functions.insert_emergency_contact(
         connection=get_connection(),
         name=emergency_contact_data.get('name', None),
         relationship=emergency_contact_data.get('relationship', None),
@@ -775,12 +776,12 @@ def insert_emergency_contact():
         address=emergency_contact_data.get('address', None),
         completion_date=emergency_contact_data.get('completion_date', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_volunteer', methods=['POST'])
 def insert_volunteer():
     volunteer_data = json.loads(request.get_json()[0])
-    insert_functions.insert_volunteer(
+    id = insert_functions.insert_volunteer(
         connection=get_connection(),
         name=volunteer_data.get('name', None),
         phone=volunteer_data.get('phone', None),
@@ -794,12 +795,12 @@ def insert_volunteer():
         confidentiality=volunteer_data.get('confidentiality', None),
         training_level=volunteer_data.get('training_level', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_applications', methods=['POST'])
 def insert_applications():
     application_data = json.loads(request.get_json()[0])
-    insert_functions.insert_applications(
+    id = insert_functions.insert_applications(
         connection=get_connection(),
         birthday=application_data.get('birthday', None),
         occupation=application_data.get('occupation', None),
@@ -812,12 +813,12 @@ def insert_applications():
         convicted_of_crime=application_data.get('convicted_of_crime', None),
         application_date=application_data.get('application_date', None),
     )
-    return '', 200
+    return str(id), 200
 
 @app.route('/insert_outreach', methods=['POST'])
 def insert_outreach():
     outreach_data = json.loads(request.get_json()[0])
-    insert_functions.insert_outreach(
+    id = insert_functions.insert_outreach(
         connection=get_connection(),
         contacted_date=outreach_data.get('contacted_date', None),
         staff_contacted=outreach_data.get('staff_contacted', None),
@@ -829,7 +830,7 @@ def insert_outreach():
         robly=outreach_data.get('robly', None),
         notes=outreach_data.get('notes', None),
     )
-    return '', 200
+    return str(id), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
