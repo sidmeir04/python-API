@@ -68,6 +68,7 @@ def get_tour():
 @app.route('/get_member', methods=['POST'])
 def get_member():
     member_data = request.get_json()
+    print(member_data)
     member = get_functions.get_member(
         connection=get_connection(),
         id=member_data.get('id', None),
@@ -494,7 +495,9 @@ def update_emergency_contact():
     emergency_contact_data = json.loads(request.get_json()[0])
     update_functions.update_emergency_contact(
         connection=get_connection(),
-        id=emergency_contact_data.get('id'),
+        # id should be given as list with only one item being the id
+        # had to do this b/c of spagetti code on front end :)
+        id=emergency_contact_data.get('id')[0],
         name=emergency_contact_data.get('name', None),
         relationship=emergency_contact_data.get('relationship', None),
         day_phone=emergency_contact_data.get('day_phone', None),
@@ -644,7 +647,6 @@ def insert_membership_enrollment_form():
         aphasia_cause=enrollment_form_data.get('aphasia_cause', None),
         aphasia_onset=enrollment_form_data.get('aphasia_onset', None),
         brain_location=enrollment_form_data.get('brain_location', None),
-        allergies=enrollment_form_data.get('allergies', None),
         medications=enrollment_form_data.get('medications', None),
         filled_by=enrollment_form_data.get('filled_by', None),
         completed_date=enrollment_form_data.get('completed_date', None),
