@@ -321,8 +321,7 @@ class get_functions():
                                 stroke_location='', lesion_location='', 
                                 primary_diagnosis='', secondary_diagnosis='', 
                                 seizure_history=None, last_seizure_date=None, 
-                                anti_seizure_med=None, hearing_aid=None, 
-                                swallowing_strategies=None, 
+                                anti_seizure_med=None,
                                 other_visual_impairments='',
                                 completion_date=None):
         cursor = connection.cursor()
@@ -388,14 +387,6 @@ class get_functions():
             query += " AND anti_seizure_med = %s"
             filters.append(anti_seizure_med)
         
-        if hearing_aid is not None:
-            query += " AND hearing_aid = %s"
-            filters.append(hearing_aid)
-        
-        if swallowing_strategies is not None:
-            query += " AND swallowing_strategies = %s"
-            filters.append(swallowing_strategies)
-        
         if other_visual_impairments:
             query += " AND other_visual_impairments LIKE %s"
             filters.append(f'%{other_visual_impairments}%')
@@ -410,9 +401,25 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        # id, sexual_orientation, race, income, living_status, grew_up, occupations, prev_speech_therapy, other_therapy, hearing_loss, hearing_aid, aphasia_cause, aphasia_onset, brain_location, medications, filled_by, completed_date, patient_info
+        # physician_name
+        # specialty
+        # physician_address
+        # physician_phone
+        # aphasia_cause
+        # aphasia_onset
+        # stroke_location
+        # lesion_location
+        # primary_diagnosis
+        # secondary_diagnosis
+        # seizure_history
+        # last_seizure_date
+        # anti_seizure_med
+        # visual_impairments
+        # visual_field_cut
+        # other_visual_impairments
+        # completion_date
         dict_results = {}
-        columns = ["id", "sexual_orientation", "race", "income", "living_status", "grew_up", "occupations", "prev_speech_therapy", "other_therapy", "hearing_loss", "hearing_aid", "aphasia_cause", "aphasia_onset", "brain_location", "medications", "filled_by", "completed_date", "patient_info"]
+        columns = ["id", "physicion_name", "specialty", "physician_address", "physician_phone", "aphasia_cause", "aphasia_onset", "stroke_location", "lesion_location", "primary_diagnosis", "secondary_diagnosis", "seizure_history", "last_seizure_date", "anti_seizure_med", "visual_impairments", "visual_field_cut", "other_visual_impairments", "completion_date"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
         if connection:
@@ -1229,9 +1236,7 @@ class update_functions():
             physician_phone=None, aphasia_cause=None, aphasia_onset=None, 
             stroke_location=None, lesion_location=None, primary_diagnosis=None, 
             secondary_diagnosis=None, seizure_history=None, last_seizure_date=None, 
-            anti_seizure_med=None, allergies=None, medications=None, hearing_aid=None, 
-            hearing_impairment=None, swallowing_impairments=None, current_diet=None, 
-            swallowing_strategies=None, visual_impairments=None, visual_field_cut=None, 
+            anti_seizure_med=None, visual_impairments=None, visual_field_cut=None, 
             other_visual_impairments=None, completion_date=None
     ):
         cursor = connection.cursor()
@@ -1277,27 +1282,6 @@ class update_functions():
         if anti_seizure_med is not None:
             update_query += "anti_seizure_med = %s, "
             update_values.append(anti_seizure_med)
-        if allergies:
-            update_query += "allergies = %s, "
-            update_values.append(allergies)
-        if medications:
-            update_query += "medications = %s, "
-            update_values.append(medications)
-        if hearing_aid is not None:
-            update_query += "hearing_aid = %s, "
-            update_values.append(hearing_aid)
-        if hearing_impairment:
-            update_query += "hearing_impairment = %s, "
-            update_values.append(hearing_impairment)
-        if swallowing_impairments:
-            update_query += "swallowing_impairments = %s, "
-            update_values.append(swallowing_impairments)
-        if current_diet:
-            update_query += "current_diet = %s, "
-            update_values.append(current_diet)
-        if swallowing_strategies is not None:
-            update_query += "swallowing_strategies = %s, "
-            update_values.append(swallowing_strategies)
         if visual_impairments:
             update_query += "visual_impairments = %s, "
             update_values.append(visual_impairments)
@@ -1899,8 +1883,7 @@ class insert_functions():
     def insert_medical_history_form(connection, physician_name, specialty, physician_address, physician_phone, 
                                     aphasia_cause, aphasia_onset, stroke_location, lesion_location, 
                                     primary_diagnosis, secondary_diagnosis, seizure_history, last_seizure_date, 
-                                    anti_seizure_med, allergies, medications, hearing_aid, hearing_impairment, 
-                                    swallowing_impairments, current_diet, swallowing_strategies, visual_impairments, 
+                                    anti_seizure_med, visual_impairments, 
                                     visual_field_cut, other_visual_impairments, completion_date):
         cursor = connection.cursor()
 
@@ -1908,8 +1891,7 @@ class insert_functions():
         INSERT INTO Medical_History_Form (
             physician_name, specialty, physician_address, physician_phone, aphasia_cause, aphasia_onset, 
             stroke_location, lesion_location, primary_diagnosis, secondary_diagnosis, seizure_history, 
-            last_seizure_date, anti_seizure_med, allergies, medications, hearing_aid, hearing_impairment, 
-            swallowing_impairments, current_diet, swallowing_strategies, visual_impairments, 
+            last_seizure_date, anti_seizure_med, visual_impairments, 
             visual_field_cut, other_visual_impairments, completion_date, other_conditions
         ) 
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -1918,8 +1900,7 @@ class insert_functions():
         data = (
             physician_name, specialty, physician_address, physician_phone, aphasia_cause, aphasia_onset, 
             stroke_location, lesion_location, primary_diagnosis, secondary_diagnosis, seizure_history, 
-            last_seizure_date, anti_seizure_med, allergies, medications, hearing_aid, hearing_impairment, 
-            swallowing_impairments, current_diet, swallowing_strategies, visual_impairments, 
+            last_seizure_date, anti_seizure_med, visual_impairments, 
             visual_field_cut, other_visual_impairments, completion_date, None
         )
 

@@ -115,24 +115,25 @@ def get_medical_history_form():
     medical_history_form = get_functions.get_medical_history_form(
         connection=get_connection(),
         id=medical_history_form_data.get('id', None),
-        physician_name=medical_history_form_data.get('physician_name', ''),
-        specialty=medical_history_form_data.get('specialty', ''),
-        physician_address=medical_history_form_data.get('physician_address', ''),
-        physician_phone=medical_history_form_data.get('physician_phone', ''),
-        aphasia_cause=medical_history_form_data.get('aphasia_cause', ''),
+        physician_name=medical_history_form_data.get('physician_name', None),
+        specialty=medical_history_form_data.get('specialty', None),
+        physician_address=medical_history_form_data.get('physician_address', None),
+        physician_phone=medical_history_form_data.get('physician_phone', None),
+        aphasia_cause=medical_history_form_data.get('aphasia_cause', None),
         aphasia_onset=medical_history_form_data.get('aphasia_onset', None),
-        stroke_location=medical_history_form_data.get('stroke_location', ''),
-        lesion_location=medical_history_form_data.get('lesion_location', ''),
-        primary_diagnosis=medical_history_form_data.get('primary_diagnosis', ''),
-        secondary_diagnosis=medical_history_form_data.get('secondary_diagnosis', ''),
+        stroke_location=medical_history_form_data.get('stroke_location', None),
+        lesion_location=medical_history_form_data.get('lesion_location', None),
+        primary_diagnosis=medical_history_form_data.get('primary_diagnosis', None),
+        secondary_diagnosis=medical_history_form_data.get('secondary_diagnosis', None),
         seizure_history=medical_history_form_data.get('seizure_history', None),
         last_seizure_date=medical_history_form_data.get('last_seizure_date', None),
         anti_seizure_med=medical_history_form_data.get('anti_seizure_med', None),
-        hearing_aid=medical_history_form_data.get('hearing_aid', None),
-        swallowing_strategies=medical_history_form_data.get('swallowing_strategies', None),
-        other_visual_impairments=medical_history_form_data.get('other_visual_impairments', ''),
-        completion_date =medical_history_form_data.get('completion_date  ', None),
+        visual_impairments=medical_history_form_data.get('visual_impairments', None),
+        visual_field_cut=medical_history_form_data.get('visual_field_cut', None),
+        other_visual_impairments=medical_history_form_data.get('other_visual_impairments', None),
+        completion_date=medical_history_form_data.get('completion_date', None),
     )
+    print(medical_history_form)
     return jsonify(medical_history_form), 200
 
 @app.route('/get_incident_report', methods=['POST'])
@@ -352,7 +353,8 @@ def update_membership_enrollment_form():
     enrollment_form_data = json.loads(request.get_json()[0])
     update_functions.update_membership_enrollment_form(
         connection=get_connection(),
-        id=enrollment_form_data.get('id'),
+        # see update_emergency_contact for why this is a list
+        id=enrollment_form_data.get('id')[0],
         sexual_orientation=enrollment_form_data.get('sexual_orientation', None),
         race=enrollment_form_data.get('race', None),
         income=enrollment_form_data.get('income', None),
@@ -378,7 +380,8 @@ def update_medical_history_form():
     medical_history_data = json.loads(request.get_json()[0])
     update_functions.update_medical_history_form(
         connection=get_connection(),
-        id=medical_history_data.get('id'),
+        # see update_emergency_contact for why this is a list
+        id=medical_history_data.get('id')[0],
         physician_name=medical_history_data.get('physician_name', None),
         specialty=medical_history_data.get('specialty', None),
         physician_address=medical_history_data.get('physician_address', None),
@@ -392,13 +395,6 @@ def update_medical_history_form():
         seizure_history=medical_history_data.get('seizure_history', None),
         last_seizure_date=medical_history_data.get('last_seizure_date', None),
         anti_seizure_med=medical_history_data.get('anti_seizure_med', None),
-        allergies=medical_history_data.get('allergies', None),
-        medications=medical_history_data.get('medications', None),
-        hearing_aid=medical_history_data.get('hearing_aid', None),
-        hearing_impairment=medical_history_data.get('hearing_impairment', None),
-        swallowing_impairments=medical_history_data.get('swallowing_impairments', None),
-        current_diet=medical_history_data.get('current_diet', None),
-        swallowing_strategies=medical_history_data.get('swallowing_strategies', None),
         visual_impairments=medical_history_data.get('visual_impairments', None),
         visual_field_cut=medical_history_data.get('visual_field_cut', None),
         other_visual_impairments=medical_history_data.get('other_visual_impairments', None),
@@ -671,13 +667,6 @@ def insert_medical_history_form():
         seizure_history=medical_history_data.get('seizure_history', None),
         last_seizure_date=medical_history_data.get('last_seizure_date', None),
         anti_seizure_med=medical_history_data.get('anti_seizure_med', None),
-        allergies=medical_history_data.get('allergies', None),
-        medications=medical_history_data.get('medications', None),
-        hearing_aid=medical_history_data.get('hearing_aid', None),
-        hearing_impairment=medical_history_data.get('hearing_impairment', None),
-        swallowing_impairments=medical_history_data.get('swallowing_impairments', None),
-        current_diet=medical_history_data.get('current_diet', None),
-        swallowing_strategies=medical_history_data.get('swallowing_strategies', None),
         visual_impairments=medical_history_data.get('visual_impairments', None),
         visual_field_cut=medical_history_data.get('visual_field_cut', None),
         other_visual_impairments=medical_history_data.get('other_visual_impairments', None),
