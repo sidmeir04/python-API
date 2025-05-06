@@ -322,6 +322,8 @@ class get_functions():
                                 primary_diagnosis='', secondary_diagnosis='', 
                                 seizure_history=None, last_seizure_date=None, 
                                 anti_seizure_med=None,
+                                visual_impairments='',
+                                visual_field_cut=None,
                                 other_visual_impairments='',
                                 completion_date=None):
         cursor = connection.cursor()
@@ -386,6 +388,14 @@ class get_functions():
         if anti_seizure_med is not None:
             query += " AND anti_seizure_med = %s"
             filters.append(anti_seizure_med)
+
+        if visual_impairments:
+            query += " AND visual_impairments LIKE %s"
+            filters.append(f'%{visual_impairments}%')
+
+        if visual_field_cut is not None:
+            query += " AND visual_field_cut = %s"
+            filters.append(visual_field_cut)
         
         if other_visual_impairments:
             query += " AND other_visual_impairments LIKE %s"
@@ -419,7 +429,7 @@ class get_functions():
         # other_visual_impairments
         # completion_date
         dict_results = {}
-        columns = ["id", "physicion_name", "specialty", "physician_address", "physician_phone", "aphasia_cause", "aphasia_onset", "stroke_location", "lesion_location", "primary_diagnosis", "secondary_diagnosis", "seizure_history", "last_seizure_date", "anti_seizure_med", "visual_impairments", "visual_field_cut", "other_visual_impairments", "completion_date"]
+        columns = ["id", "physicion_name", "specialty", "physician_address", "physician_phone", "aphasia_cause", "aphasia_onset", "stroke_location", "lesion_location", "primary_diagnosis", "secondary_diagnosis", "seizure_history", "last_seizure_date", "anti_seizure_med", "visual_impairments", "visual_field_cut", "other_visual_impairments", "completion_date", "other_medical_conditions"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
         if connection:
@@ -564,138 +574,109 @@ class get_functions():
             connection.close()
         return dict_results
 
-    
     @staticmethod
-    def get_caregiver(connection, id=None, name='', phone='', email='', 
-                    date_contacted=None, group_attending='', 
-                    attending=None):
+    def get_caregiver(
+        connection, id=None, name='', phone='', email='', relationship='', date_contacted=None,
+        group_attending='', attending=None, caregiver_type='', sex='', race='', occupations='',
+        support_group=None, allergies='', medications='', participation='', robly=None,
+        enrollment_form=None, medical_history=None, emergency_contact_one=None,
+        emergency_contact_two=None, transport_info=None, member_id=None
+    ):
         cursor = connection.cursor()
-        
+
         # Start building the base query
         query = "SELECT * FROM Caregiver WHERE 1=1"
         filters = []
-        
+
         # Append conditions based on provided arguments
         if id is not None:
             query += " AND id = %s"
             filters.append(id)
-
         if name:
             query += " AND name LIKE %s"
             filters.append(f'%{name}%')
-        
         if phone:
             query += " AND phone LIKE %s"
             filters.append(f'%{phone}%')
-        
         if email:
             query += " AND email LIKE %s"
             filters.append(f'%{email}%')
-        
+        if relationship:
+            query += " AND relationship LIKE %s"
+            filters.append(f'%{relationship}%')
         if date_contacted is not None:
             query += " AND date_contacted = %s"
             filters.append(date_contacted)
-        
         if group_attending:
             query += " AND group_attending LIKE %s"
             filters.append(f'%{group_attending}%')
-        
         if attending is not None:
             query += " AND attending = %s"
             filters.append(attending)
-        
-        # Execute the query with filters
-        cursor.execute(query, tuple(filters))
-        
-        # Fetch all results
-        results = cursor.fetchall()
-        
-        # id, name, phone, email, relationship, date_contacted, notes, group_attending, attending
-        dict_results = {}
-        columns = ["id", "name", "phone", "email", "relationship", "date_contacted", "notes", "group_attending", "attending"]
-        for i in range(len(columns)):
-            dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
-        if connection:
-            connection.close()
-        return dict_results
-
-    
-    @staticmethod
-    def get_attending_caregiver(connection, id=None, caregiver_type='', sex='', race='', 
-                                occupations='', support_group=None, 
-                                covid_vaccine_date=None, allergies='', 
-                                media_release=None, start_date=None, 
-                                end_date=None, robly=None):
-        cursor = connection.cursor()
-        
-        # Start building the base query
-        query = "SELECT * FROM Attending_Caregiver WHERE 1=1"
-        filters = []
-        
-        # Append conditions based on provided arguments
-        if id is not None:
-            query += " AND id = %s"
-            filters.append(id)
-
         if caregiver_type:
             query += " AND caregiver_type LIKE %s"
             filters.append(f'%{caregiver_type}%')
-        
         if sex:
             query += " AND sex = %s"
             filters.append(sex)
-        
         if race:
             query += " AND race LIKE %s"
             filters.append(f'%{race}%')
-        
         if occupations:
             query += " AND occupations LIKE %s"
             filters.append(f'%{occupations}%')
-        
         if support_group is not None:
             query += " AND support_group = %s"
             filters.append(support_group)
-        
-        if covid_vaccine_date is not None:
-            query += " AND covid_vaccine_date = %s"
-            filters.append(covid_vaccine_date)
-        
         if allergies:
             query += " AND allergies LIKE %s"
             filters.append(f'%{allergies}%')
-        
-        if media_release is not None:
-            query += " AND media_release = %s"
-            filters.append(media_release)
-        
-        if start_date is not None:
-            query += " AND start_date = %s"
-            filters.append(start_date)
-        
-        if end_date is not None:
-            query += " AND end_date = %s"
-            filters.append(end_date)
-        
+        if medications:
+            query += " AND medications LIKE %s"
+            filters.append(f'%{medications}%')
+        if participation:
+            query += " AND participation LIKE %s"
+            filters.append(f'%{participation}%')
         if robly is not None:
             query += " AND robly = %s"
             filters.append(robly)
-        
+        if enrollment_form is not None:
+            query += " AND enrollment_form = %s"
+            filters.append(enrollment_form)
+        if medical_history is not None:
+            query += " AND medical_history = %s"
+            filters.append(medical_history)
+        if emergency_contact_one is not None:
+            query += " AND emergency_contact_one = %s"
+            filters.append(emergency_contact_one)
+        if emergency_contact_two is not None:
+            query += " AND emergency_contact_two = %s"
+            filters.append(emergency_contact_two)
+        if transport_info is not None:
+            query += " AND transport_info = %s"
+            filters.append(transport_info)
+        if member_id is not None:
+            query += " AND member_id = %s"
+            filters.append(member_id)
+
         # Execute the query with filters
         cursor.execute(query, tuple(filters))
-        
+
         # Fetch all results
         results = cursor.fetchall()
-        
+
+        # Define the columns
+        columns = ['id', 'name', 'phone', 'email', 'relationship', 'date_contacted', 'notes', 'group_attending', 'attending', 'caregiver_type', 'sex', 'race', 'occupations', 'support_group', 'covid_vaccine_date', 'allergies', 'medications', 'participation', 'robly', 'enrollment_form', 'medical_history', 'emergency_contact_one', 'emergency_contact_two', 'transport_info', 'member_id']
+
+        # Map results to a dictionary
         dict_results = {}
-        columns = ["id", "caregiver_type", "sex", "race", "occupations", "support_group", "covid_vaccine_date", "allergies", "medications", "media_release", "start_date", "end_date", "general_notes", "participation", "robly"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
+
         if connection:
             connection.close()
         return dict_results
 
-    
     @staticmethod
     def get_emergency_contact(connection, id=None, name='', relationship='', day_phone='', 
                             evening_phone='', cell_phone='', 
@@ -1071,7 +1052,7 @@ class update_functions():
             connection, id, name=None, age=None, dob=None, email=None, aep_completion_date=None, 
             join_date=None, schedule=None, phone=None, address=None, county=None, 
             gender=None, veteran=None, joined=None, caregiver_needed=None, medical_history = None,
-            alder_program=None, emergency_contact_one = None, emergency_contact_two = None, enrollment_form = None
+            alder_program=None, emergency_contact_one = None, emergency_contact_two = None, enrollment_form = None, notes = None
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Member SET "
@@ -1134,6 +1115,9 @@ class update_functions():
         if enrollment_form:
             update_query += "enrollment_form = %s, "
             update_values.append(enrollment_form)
+        if notes:
+            update_query += "notes = %s, "
+            update_values.append(notes)
 
         update_query = update_query.rstrip(", ")
 
@@ -1157,7 +1141,7 @@ class update_functions():
             prev_speech_therapy=None, other_therapy=None, 
             hearing_loss=None, hearing_aid=None, aphasia_cause=None, 
             aphasia_onset=None, brain_location=None, allergies=None, 
-            medications=None, filled_by=None, completed_date=None
+            medications=None, filled_by=None, completed_date=None, patient_info=None
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Membership_Enrollment_Form SET "
@@ -1214,6 +1198,9 @@ class update_functions():
         if completed_date:
             update_query += "completed_date = %s, "
             update_values.append(completed_date)
+        if patient_info:
+            update_query += "patient_info = %s, "
+            update_values.append(patient_info)
 
         update_query = update_query.rstrip(", ")
 
@@ -1237,7 +1224,7 @@ class update_functions():
             stroke_location=None, lesion_location=None, primary_diagnosis=None, 
             secondary_diagnosis=None, seizure_history=None, last_seizure_date=None, 
             anti_seizure_med=None, visual_impairments=None, visual_field_cut=None, 
-            other_visual_impairments=None, completion_date=None
+            other_visual_impairments=None, completion_date=None, other_medical_conditions=None
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Medical_History_Form SET "
@@ -1294,6 +1281,9 @@ class update_functions():
         if completion_date:
             update_query += "completion_date = %s, "
             update_values.append(completion_date)
+        if other_medical_conditions:
+            update_query += "other_conditions = %s, "
+            update_values.append(other_medical_conditions)
 
         update_query = update_query.rstrip(", ")
 
@@ -1438,8 +1428,11 @@ class update_functions():
 
     @staticmethod
     def update_caregiver(
-            connection, id, name=None, phone=None, email=None, relationship=None, date_contacted=None,
-            notes=None, group_attending=None, attending=None
+        connection, id, name=None, phone=None, email=None, relationship=None, date_contacted=None,
+        notes=None, group_attending=None, attending=None, caregiver_type=None, sex=None, race=None,
+        occupations=None, support_group=None, covid_vaccine_date=None, allergies=None, medications=None,
+        participation=None, robly=None, enrollment_form=None, medical_history=None,
+        emergency_contact_one=None, emergency_contact_two=None, transport_info=None, member_id=None
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Caregiver SET "
@@ -1469,33 +1462,6 @@ class update_functions():
         if attending is not None:
             update_query += "attending = %s, "
             update_values.append(attending)
-
-        update_query = update_query.rstrip(", ")
-
-        # Add the condition to update the specific caller by id
-        update_query += " WHERE id = %s"
-        update_values.append(id)
-
-        # Execute the query
-        cursor.execute(update_query, tuple(update_values))
-
-        # Commit the transaction
-        connection.commit()
-        if connection:
-            connection.close()
-        return id
-
-    @staticmethod
-    def update_attending_caregiver(
-            connection, id, caregiver_type=None, sex=None, race=None, occupations=None, 
-            support_group=None, covid_vaccine_date=None, allergies=None, 
-            medications=None, media_release=None, start_date=None, end_date=None, 
-            general_notes=None, participation=None, robly=None
-    ):
-        cursor = connection.cursor()
-        update_query = "UPDATE Attending_Caregiver SET "
-        update_values = []
-
         if caregiver_type:
             update_query += "caregiver_type = %s, "
             update_values.append(caregiver_type)
@@ -1520,28 +1486,34 @@ class update_functions():
         if medications:
             update_query += "medications = %s, "
             update_values.append(medications)
-        if media_release is not None:
-            update_query += "media_release = %s, "
-            update_values.append(media_release)
-        if start_date:
-            update_query += "start_date = %s, "
-            update_values.append(start_date)
-        if end_date:
-            update_query += "end_date = %s, "
-            update_values.append(end_date)
-        if general_notes:
-            update_query += "general_notes = %s, "
-            update_values.append(general_notes)
         if participation:
             update_query += "participation = %s, "
             update_values.append(participation)
         if robly is not None:
             update_query += "robly = %s, "
             update_values.append(robly)
+        if enrollment_form is not None:
+            update_query += "enrollment_form = %s, "
+            update_values.append(enrollment_form)
+        if medical_history is not None:
+            update_query += "medical_history = %s, "
+            update_values.append(medical_history)
+        if emergency_contact_one is not None:
+            update_query += "emergency_contact_one = %s, "
+            update_values.append(emergency_contact_one)
+        if emergency_contact_two is not None:
+            update_query += "emergency_contact_two = %s, "
+            update_values.append(emergency_contact_two)
+        if transport_info is not None:
+            update_query += "transport_info = %s, "
+            update_values.append(transport_info)
+        if member_id is not None:
+            update_query += "member_id = %s, "
+            update_values.append(member_id)
 
         update_query = update_query.rstrip(", ")
 
-        # Add the condition to update the specific caller by id
+        # Add the condition to update the specific caregiver by id
         update_query += " WHERE id = %s"
         update_values.append(id)
 
@@ -1828,14 +1800,14 @@ class insert_functions():
 
     def insert_member(connection, name, age, dob, email, aep_completion_date, join_date, schedule, 
                   phone, address, county, gender, veteran, joined, caregiver_needed, 
-                  alder_program):
+                  alder_program, notes):
         cursor = connection.cursor()
 
         insert_query = """
         INSERT INTO Member (
             name, age, dob, email, aep_completion_date, join_date, schedule, 
             phone, address, county, gender, veteran, joined, caregiver_needed, 
-            alder_program, member_info
+            alder_program, member_info, notes
         ) 
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -1843,7 +1815,7 @@ class insert_functions():
         data = (
             name, age, dob, email, aep_completion_date, join_date, schedule, 
             phone, address, county, gender, veteran, joined, caregiver_needed, 
-            alder_program, None
+            alder_program, notes
         )
 
         cursor.execute(insert_query, data)
@@ -1856,7 +1828,7 @@ class insert_functions():
                                         grew_up, occupations, prev_speech_therapy, 
                                         other_therapy, hearing_loss, hearing_aid, aphasia_cause, 
                                         aphasia_onset, brain_location, medications, filled_by, 
-                                        completed_date):
+                                        completed_date, patient_info):
         cursor = connection.cursor()
 
         insert_query = """
@@ -1871,7 +1843,7 @@ class insert_functions():
         data = (
             sexual_orientation, race, income, living_status, grew_up, occupations, 
             prev_speech_therapy, other_therapy, hearing_loss, hearing_aid, aphasia_cause, 
-            aphasia_onset, brain_location, medications, filled_by, completed_date, None
+            aphasia_onset, brain_location, medications, filled_by, completed_date, patient_info
         )
 
         cursor.execute(insert_query, data)
@@ -1884,7 +1856,7 @@ class insert_functions():
                                     aphasia_cause, aphasia_onset, stroke_location, lesion_location, 
                                     primary_diagnosis, secondary_diagnosis, seizure_history, last_seizure_date, 
                                     anti_seizure_med, visual_impairments, 
-                                    visual_field_cut, other_visual_impairments, completion_date):
+                                    visual_field_cut, other_visual_impairments, completion_date, other_medical_conditions):
         cursor = connection.cursor()
 
         insert_query = """
@@ -1894,14 +1866,14 @@ class insert_functions():
             last_seizure_date, anti_seizure_med, visual_impairments, 
             visual_field_cut, other_visual_impairments, completion_date, other_conditions
         ) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         data = (
             physician_name, specialty, physician_address, physician_phone, aphasia_cause, aphasia_onset, 
             stroke_location, lesion_location, primary_diagnosis, secondary_diagnosis, seizure_history, 
             last_seizure_date, anti_seizure_med, visual_impairments, 
-            visual_field_cut, other_visual_impairments, completion_date, None
+            visual_field_cut, other_visual_impairments, completion_date, other_medical_conditions
         )
 
         cursor.execute(insert_query, data)
@@ -1973,42 +1945,29 @@ class insert_functions():
             connection.close()
         return cursor.lastrowid
 
-    def insert_caregiver(connection, name, phone, email, relationship, date_contacted, notes, group_attending, attending):
+    def insert_caregiver(
+        connection, name, phone, email, relationship, date_contacted, notes, group_attending, 
+        attending, caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, 
+        allergies, medications, participation, robly, enrollment_form, medical_history, 
+        emergency_contact_one, emergency_contact_two, transport_info, member_id
+    ):
         cursor = connection.cursor()
 
         insert_query = """
         INSERT INTO Caregiver (
-            name, phone, email, relationship, date_contacted, notes, group_attending, attending
+            name, phone, email, relationship, date_contacted, notes, group_attending, 
+            attending, caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, 
+            allergies, medications, participation, robly, enrollment_form, medical_history, 
+            emergency_contact_one, emergency_contact_two, transport_info, member_id
         ) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         data = (
-            name, phone, email, relationship, date_contacted, notes, group_attending, attending
-        )
-
-        cursor.execute(insert_query, data)
-        connection.commit()
-        if connection:
-            connection.close()
-        return cursor.lastrowid
-
-    def insert_attending_caregiver(connection, caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, 
-                                allergies, medications, media_release, start_date, end_date, 
-                                general_notes, participation, robly):
-        cursor = connection.cursor()
-
-        insert_query = """
-        INSERT INTO Attending_Caregiver (
-            caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, allergies, medications,
-            media_release, start_date, end_date, general_notes, participation, robly
-        ) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-
-        data = (
-            caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, allergies, medications,
-            media_release, start_date, end_date, general_notes, participation, robly
+            name, phone, email, relationship, date_contacted, notes, group_attending, 
+            attending, caregiver_type, sex, race, occupations, support_group, covid_vaccine_date, 
+            allergies, medications, participation, robly, enrollment_form, medical_history, 
+            emergency_contact_one, emergency_contact_two, transport_info, member_id
         )
 
         cursor.execute(insert_query, data)

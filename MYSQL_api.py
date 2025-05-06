@@ -68,7 +68,6 @@ def get_tour():
 @app.route('/get_member', methods=['POST'])
 def get_member():
     member_data = request.get_json()
-    print(member_data)
     member = get_functions.get_member(
         connection=get_connection(),
         id=member_data.get('id', None),
@@ -133,7 +132,6 @@ def get_medical_history_form():
         other_visual_impairments=medical_history_form_data.get('other_visual_impairments', None),
         completion_date=medical_history_form_data.get('completion_date', None),
     )
-    print(medical_history_form)
     return jsonify(medical_history_form), 200
 
 @app.route('/get_incident_report', methods=['POST'])
@@ -179,37 +177,34 @@ def get_transportation_information():
 @app.route('/get_caregiver', methods=['POST'])
 def get_caregiver():
     caregiver_data = request.get_json()
+    print(caregiver_data)
     caregiver = get_functions.get_caregiver(
         connection=get_connection(),
         id=caregiver_data.get('id', None),
         name=caregiver_data.get('name', ''),
         phone=caregiver_data.get('phone', ''),
         email=caregiver_data.get('email', ''),
+        relationship=caregiver_data.get('relationship', ''),
         date_contacted=caregiver_data.get('date_contacted', None),
         group_attending=caregiver_data.get('group_attending', ''),
         attending=caregiver_data.get('attending', None),
+        caregiver_type=caregiver_data.get('caregiver_type', ''),
+        sex=caregiver_data.get('sex', ''),
+        race=caregiver_data.get('race', ''),
+        occupations=caregiver_data.get('occupations', ''),
+        support_group=caregiver_data.get('support_group', None),
+        allergies=caregiver_data.get('allergies', ''),
+        medications=caregiver_data.get('medications', ''),
+        participation=caregiver_data.get('participation', ''),
+        robly=caregiver_data.get('robly', None),
+        enrollment_form=caregiver_data.get('enrollment_form', None),
+        medical_history=caregiver_data.get('medical_history', None),
+        emergency_contact_one=caregiver_data.get('emergency_contact_one', None),
+        emergency_contact_two=caregiver_data.get('emergency_contact_two', None),
+        transport_info=caregiver_data.get('transport_info', None),
+        member_id=caregiver_data.get('member_id', None),
     )
     return jsonify(caregiver), 200
-
-@app.route('/get_attending_caregiver', methods=['POST'])
-def get_attending_caregiver():
-    attending_caregiver_data = request.get_json()
-    attending_caregiver = get_functions.get_attending_caregiver(
-        connection=get_connection(),
-        id=attending_caregiver.get('id', None),
-        caregiver_type=attending_caregiver_data.get('caregiver_type', ''),
-        sex=attending_caregiver_data.get('sex', ''),
-        race=attending_caregiver_data.get('race', ''),
-        occupations=attending_caregiver_data.get('occupations', ''),
-        support_group=attending_caregiver_data.get('support_group', None),
-        covid_vaccine_date=attending_caregiver_data.get('covid_vaccine_date', None),
-        allergies=attending_caregiver_data.get('allergies', ''),
-        media_release=attending_caregiver_data.get('media_release', None),
-        start_date=attending_caregiver_data.get('start_date', None),
-        end_date=attending_caregiver_data.get('end_date', None),
-        robly=attending_caregiver_data.get('robly', None),
-    )
-    return jsonify(attending_caregiver), 200
 
 @app.route('/get_emergency_contact', methods=['POST'])
 def get_emergency_contact():
@@ -322,7 +317,6 @@ def update_tour():
 @app.route('/update_member', methods=['POST'])
 def update_member():
     member_data = json.loads(request.get_json()[0])
-    print(member_data)
     update_functions.update_member(
         connection=get_connection(),
         id=member_data.get('id'),
@@ -344,7 +338,8 @@ def update_member():
         medical_history=member_data.get('medical_history', None),
         emergency_contact_one=member_data.get('emergency_contact_one', None),
         emergency_contact_two=member_data.get('emergency_contact_two', None),
-        enrollment_form=member_data.get('enrollment_form', None)
+        enrollment_form=member_data.get('enrollment_form', None),
+        notes=member_data.get('notes', None)
     )
     return '', 200
 
@@ -372,6 +367,7 @@ def update_membership_enrollment_form():
         medications=enrollment_form_data.get('medications', None),
         filled_by=enrollment_form_data.get('filled_by', None),
         completed_date=enrollment_form_data.get('completed_date', None),
+        patient_info=json.dumps(enrollment_form_data.get('patient_info', None))
     )
     return '', 200
 
@@ -399,6 +395,7 @@ def update_medical_history_form():
         visual_field_cut=medical_history_data.get('visual_field_cut', None),
         other_visual_impairments=medical_history_data.get('other_visual_impairments', None),
         completion_date=medical_history_data.get('completion_date', None),
+        other_medical_conditions=json.dumps(medical_history_data.get('other_medical_conditions', None))
     )
     return '', 200
 
@@ -451,7 +448,7 @@ def update_caregiver():
     caregiver_data = json.loads(request.get_json()[0])
     update_functions.update_caregiver(
         connection=get_connection(),
-        id=caregiver_data.get('id'),
+        id=caregiver_data.get('id')[0],
         name=caregiver_data.get('name', None),
         phone=caregiver_data.get('phone', None),
         email=caregiver_data.get('email', None),
@@ -460,29 +457,22 @@ def update_caregiver():
         notes=caregiver_data.get('notes', None),
         group_attending=caregiver_data.get('group_attending', None),
         attending=caregiver_data.get('attending', None),
-    )
-    return '', 200
-
-@app.route('/update_attending_caregiver', methods=['POST'])
-def update_attending_caregiver():
-    attending_caregiver_data = json.loads(request.get_json()[0])
-    update_functions.update_attending_caregiver(
-        connection=get_connection(),
-        id=attending_caregiver_data.get('id'),
-        caregiver_type=attending_caregiver_data.get('caregiver_type', None),
-        sex=attending_caregiver_data.get('sex', None),
-        race=attending_caregiver_data.get('race', None),
-        occupations=attending_caregiver_data.get('occupations', None),
-        support_group=attending_caregiver_data.get('support_group', None),
-        covid_vaccine_date=attending_caregiver_data.get('covid_vaccine_date', None),
-        allergies=attending_caregiver_data.get('allergies', None),
-        medications=attending_caregiver_data.get('medications', None),
-        media_release=attending_caregiver_data.get('media_release', None),
-        start_date=attending_caregiver_data.get('start_date', None),
-        end_date=attending_caregiver_data.get('end_date', None),
-        general_notes=attending_caregiver_data.get('general_notes', None),
-        participation=attending_caregiver_data.get('participation', None),
-        robly=attending_caregiver_data.get('robly', None),
+        caregiver_type=caregiver_data.get('caregiver_type', None),
+        sex=caregiver_data.get('sex', None),
+        race=caregiver_data.get('race', None),
+        occupations=caregiver_data.get('occupations', None),
+        support_group=caregiver_data.get('support_group', None),
+        covid_vaccine_date=caregiver_data.get('covid_vaccine_date', None),
+        allergies=caregiver_data.get('allergies', None),
+        medications=caregiver_data.get('medications', None),
+        participation=caregiver_data.get('participation', None),
+        robly=caregiver_data.get('robly', None),
+        enrollment_form=caregiver_data.get('enrollment_form', None),
+        medical_history=caregiver_data.get('medical_history', None),
+        emergency_contact_one=caregiver_data.get('emergency_contact_one', None),
+        emergency_contact_two=caregiver_data.get('emergency_contact_two', None),
+        transport_info=caregiver_data.get('transport_info', None),
+        member_id=caregiver_data.get('member_id', None),
     )
     return '', 200
 
@@ -604,7 +594,6 @@ def insert_tour():
 @app.route('/insert_member', methods=['POST'])
 def insert_member():
     member_data = json.loads(request.get_json()[0])
-    print(member_data)
     id = insert_functions.insert_member(
         connection=get_connection(),
         name=member_data.get('name', None),
@@ -622,6 +611,7 @@ def insert_member():
         joined=member_data.get('joined', None),
         caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', None),
+        notes=member_data.get('notes', None)
     )
     return str(id), 200
 
@@ -646,6 +636,7 @@ def insert_membership_enrollment_form():
         medications=enrollment_form_data.get('medications', None),
         filled_by=enrollment_form_data.get('filled_by', None),
         completed_date=enrollment_form_data.get('completed_date', None),
+        patient_info=json.dumps(enrollment_form_data.get('patient_info', None))
     )
     return str(id), 200
 
@@ -671,6 +662,7 @@ def insert_medical_history_form():
         visual_field_cut=medical_history_data.get('visual_field_cut', None),
         other_visual_impairments=medical_history_data.get('other_visual_impairments', None),
         completion_date=medical_history_data.get('completion_date', None),
+        other_medical_conditions=json.dumps(medical_history_data.get('other_medical_conditions', None))
     )
     return str(id), 200
 
@@ -728,28 +720,22 @@ def insert_caregiver():
         notes=caregiver_data.get('notes', None),
         group_attending=caregiver_data.get('group_attending', None),
         attending=caregiver_data.get('attending', None),
-    )
-    return str(id), 200
-
-@app.route('/insert_attending_caregiver', methods=['POST'])
-def insert_attending_caregiver():
-    attending_caregiver_data = json.loads(request.get_json()[0])
-    id = insert_functions.insert_attending_caregiver(
-        connection=get_connection(),
-        caregiver_type=attending_caregiver_data.get('caregiver_type', None),
-        sex=attending_caregiver_data.get('sex', None),
-        race=attending_caregiver_data.get('race', None),
-        occupations=attending_caregiver_data.get('occupations', None),
-        support_group=attending_caregiver_data.get('support_group', None),
-        covid_vaccine_date=attending_caregiver_data.get('covid_vaccine_date', None),
-        allergies=attending_caregiver_data.get('allergies', None),
-        medications=attending_caregiver_data.get('medications', None),
-        media_release=attending_caregiver_data.get('media_release', None),
-        start_date=attending_caregiver_data.get('start_date', None),
-        end_date=attending_caregiver_data.get('end_date', None),
-        general_notes=attending_caregiver_data.get('general_notes', None),
-        participation=attending_caregiver_data.get('participation', None),
-        robly=attending_caregiver_data.get('robly', None),
+        caregiver_type=caregiver_data.get('caregiver_type', None),
+        sex=caregiver_data.get('sex', None),
+        race=caregiver_data.get('race', None),
+        occupations=caregiver_data.get('occupations', None),
+        support_group=caregiver_data.get('support_group', None),
+        covid_vaccine_date=caregiver_data.get('covid_vaccine_date', None),
+        allergies=caregiver_data.get('allergies', None),
+        medications=caregiver_data.get('medications', None),
+        participation=caregiver_data.get('participation', None),
+        robly=caregiver_data.get('robly', None),
+        enrollment_form=caregiver_data.get('enrollment_form', None),
+        medical_history=caregiver_data.get('medical_history', None),
+        emergency_contact_one=caregiver_data.get('emergency_contact_one', None),
+        emergency_contact_two=caregiver_data.get('emergency_contact_two', None),
+        transport_info=caregiver_data.get('transport_info', None),
+        member_id=caregiver_data.get('member_id', None)
     )
     return str(id), 200
 
@@ -824,4 +810,4 @@ def insert_outreach():
     return str(id), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
