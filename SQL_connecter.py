@@ -15,12 +15,12 @@ def string_to_date(date_string: str) -> datetime.date:
 
 class get_functions():
     @staticmethod
-    def get_caller(connection, id=None, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
+    def get_contact(connection, id=None, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
         cursor = connection.cursor()
         call_date = string_to_date(call_date)
         follow_up_date = string_to_date(follow_up_date)
         # Start building the base query
-        query = "SELECT * FROM caller WHERE 1=1"
+        query = "SELECT * FROM contact WHERE 1=1"
         filters = []
         
         # Append conditions based on provided arguments 
@@ -215,12 +215,11 @@ class get_functions():
         # Execute the query with filters
         cursor.execute(query, tuple(filters))
         
-        # Fetch all results
         results = cursor.fetchall()
-        
+
         # id, name, age, dob, email, aep_completion_date, join_date, schedule, phone, address, county, gender, veteran, joined, caregiver_needed, adler_program, member_info, enrollment_form, medical_history, emergency_contact_one, emergency_contact_two
         dict_results = {}
-        columns = ["id", "name", "age", "dob", "email", "aep_completion_date", "join_date", "schedule", "phone", "address", "county", "gender", "veteran", "joined", "caregiver_needed", "adler_program", "member_info", "enrollment_form", "medical_history", "emergency_contact_one", "emergency_contact_two"]
+        columns = ["id", "name", "age", "dob", "email", "aep_completion_date", "join_date", "schedule", "phone", "address", "county", "gender", "veteran", "joined", "caregiver_needed", "adler_program", "notes", "member_info", "enrollment_form", "medical_history", "emergency_contact_one", "emergency_contact_two", "transport_info"]
         for i in range(len(columns)):
             if columns[i] == "member_info":  # Special handling for member_info
                 dict_results[columns[i]] = [
@@ -923,13 +922,13 @@ class get_functions():
 
 class update_functions():
     @staticmethod
-    def update_caller(
+    def update_contact(
         connection, id, staff=None, caller_name=None, caller_email=None, call_date=None, 
         phone_number=None, referral_type=None, additional_notes=None, 
         tour_scheduled=None, tour_not_scheduled_reason=None, follow_up_date=None
     ):
         cursor = connection.cursor()
-        update_query = "UPDATE Caller SET "
+        update_query = "UPDATE Contact SET "
         update_values = []
         
         # Dynamically append fields to update query and values to update_values
@@ -1745,7 +1744,7 @@ class update_functions():
 
 class insert_functions():
     @staticmethod
-    def insert_caller(
+    def insert_contact(
         connection, staff, caller_name, caller_email, call_date, phone_number,
         referral_type, additional_notes, tour_scheduled, 
         tour_not_scheduled_reason, follow_up_date
@@ -1753,7 +1752,7 @@ class insert_functions():
         cursor = connection.cursor()
 
         insert_query = """
-        INSERT INTO Caller (
+        INSERT INTO Contact (
             staff, caller_name, caller_email, call_date, phone_number, 
             referral_type, additional_notes, tour_scheduled, 
             tour_not_scheduled_reason, follow_up_date

@@ -30,11 +30,11 @@ def get_connection():
     else:
         raise ConnectionError("No database connection pool available.")
 
-# def get_caller(connection, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
-@app.route('/get_caller', methods=['POST'])
-def get_caller():
+# def get_contact(connection, staff_name='', caller_name='', caller_email = '', call_date=None, phone='', referral_type='', tour_scheduled=None, follow_up_date=None):
+@app.route('/get_contact', methods=['POST'])
+def get_contact():
     caller_data = request.get_json()
-    caller = get_functions.get_caller(
+    caller = get_functions.get_contact(
         connection=get_connection(),
         id=caller_data.get('id', None),
         staff_name=caller_data.get('staff_name', ''),
@@ -177,7 +177,6 @@ def get_transportation_information():
 @app.route('/get_caregiver', methods=['POST'])
 def get_caregiver():
     caregiver_data = request.get_json()
-    print(caregiver_data)
     caregiver = get_functions.get_caregiver(
         connection=get_connection(),
         id=caregiver_data.get('id', None),
@@ -273,10 +272,10 @@ def get_outreach():
     )
     return jsonify(outreach), 200
 
-@app.route('/update_caller', methods=['POST'])
-def update_caller():
+@app.route('/update_contact', methods=['POST'])
+def update_contact():
     caller_data = json.loads(request.get_json()[0])
-    update_functions.update_caller(
+    update_functions.update_contact(
         connection=get_connection(),
         id=caller_data.get('id'),
         staff=caller_data.get('staff', None),
@@ -319,7 +318,7 @@ def update_member():
     member_data = json.loads(request.get_json()[0])
     update_functions.update_member(
         connection=get_connection(),
-        id=member_data.get('id'),
+        id=member_data.get('id')[0],
         name=member_data.get('name', None),
         age=member_data.get('age', None),
         dob=member_data.get('dob', None),
@@ -552,10 +551,10 @@ def update_outreach():
     )
     return '', 200
 
-@app.route('/insert_caller', methods=['POST'])
-def insert_caller():
+@app.route('/insert_contact', methods=['POST'])
+def insert_contact():
     caller_data = json.loads(request.get_json()[0])
-    id = insert_functions.insert_caller(
+    id = insert_functions.insert_contact(
         connection=get_connection(),
         staff=caller_data.get('staff', None),
         caller_name=caller_data.get('caller_name', None),
@@ -810,4 +809,4 @@ def insert_outreach():
     return str(id), 200
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)
