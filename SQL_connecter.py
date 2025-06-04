@@ -136,11 +136,12 @@ class get_functions():
         return dict_results
     
     @staticmethod
-    def get_member(connection, id=None,name='', age=None, dob=None, email='', 
+    def get_member(connection, id=None,name='', dob=None, email='', 
                 aep_completion_date=None, join_date=None, 
                 schedule=None, phone='', address='', 
                 county='', gender='', veteran=None, 
-                joined=None, caregiver_needed=None, alder_program=''):
+                joined=None, caregiver_needed=None, alder_program='',
+                member_type=None, date_changed=None):
         cursor = connection.cursor()
         
         # Start building the base query
@@ -155,10 +156,6 @@ class get_functions():
         if name:
             query += " AND name LIKE %s"
             filters.append(f'%{name}%')
-        
-        if age is not None:
-            query += " AND age = %s"
-            filters.append(age)
         
         if dob is not None:
             query += " AND dob = %s"
@@ -212,6 +209,14 @@ class get_functions():
             query += " AND alder_program LIKE %s"
             filters.append(f'%{alder_program}%')
         
+        if member_type is not None:
+            query += " AND member_type = %s"
+            filters.append(member_type)
+
+        if date_changed is not None:
+            query += " AND date_changed = %s"
+            filters.append(date_changed)
+        
         # Execute the query with filters
         cursor.execute(query, tuple(filters))
         
@@ -219,7 +224,7 @@ class get_functions():
 
         # id, name, age, dob, email, aep_completion_date, join_date, schedule, phone, address, county, gender, veteran, joined, caregiver_needed, adler_program, member_info, enrollment_form, medical_history, emergency_contact_one, emergency_contact_two
         dict_results = {}
-        columns = ["id", "name", "age", "dob", "email", "aep_completion_date", "join_date", "schedule", "phone", "address", "county", "gender", "veteran", "joined", "caregiver_needed", "adler_program", "notes", "member_info", "enrollment_form", "medical_history", "emergency_contact_one", "emergency_contact_two", "transport_info"]
+        columns = ["id", "name", "dob", "email", "aep_completion_date", "join_date", "schedule", "phone", "address", "county", "gender", "veteran", "joined", "caregiver_needed", "adler_program", "member_type", "date_changed", "notes", "member_info", "enrollment_form", "medical_history", "emergency_contact_one", "emergency_contact_two", "transport_info"]
         for i in range(len(columns)):
             if columns[i] == "member_info":  # Special handling for member_info
                 dict_results[columns[i]] = [
@@ -410,23 +415,6 @@ class get_functions():
         # Fetch all results
         results = cursor.fetchall()
         
-        # physician_name
-        # specialty
-        # physician_address
-        # physician_phone
-        # aphasia_cause
-        # aphasia_onset
-        # stroke_location
-        # lesion_location
-        # primary_diagnosis
-        # secondary_diagnosis
-        # seizure_history
-        # last_seizure_date
-        # anti_seizure_med
-        # visual_impairments
-        # visual_field_cut
-        # other_visual_impairments
-        # completion_date
         dict_results = {}
         columns = ["id", "physicion_name", "specialty", "physician_address", "physician_phone", "aphasia_cause", "aphasia_onset", "stroke_location", "lesion_location", "primary_diagnosis", "secondary_diagnosis", "seizure_history", "last_seizure_date", "anti_seizure_med", "visual_impairments", "visual_field_cut", "other_visual_impairments", "completion_date", "other_medical_conditions"]
         for i in range(len(columns)):
@@ -512,10 +500,8 @@ class get_functions():
 
     
     @staticmethod
-    def get_transportation_information(connection, id=None, bus_transport=None, bus_company='', 
-                                        bus_contact_phone='', picked_up=None, 
-                                        pickup_person='', relationship_to_member='', 
-                                        primary_phone='', secondary_phone=''):
+    def get_transportation_information(connection, id=None, am_name='', am_phone='',
+                                       pm_name='', pm_phone='',):
         cursor = connection.cursor()
         
         # Start building the base query
@@ -527,37 +513,21 @@ class get_functions():
             query += " AND id = %s"
             filters.append(id)
 
-        if bus_transport is not None:
-            query += " AND bus_transport = %s"
-            filters.append(bus_transport)
-        
-        if bus_company:
-            query += " AND bus_company LIKE %s"
-            filters.append(f'%{bus_company}%')
-        
-        if bus_contact_phone:
-            query += " AND bus_contact_phone LIKE %s"
-            filters.append(f'%{bus_contact_phone}%')
-        
-        if picked_up is not None:
-            query += " AND picked_up = %s"
-            filters.append(picked_up)
-        
-        if pickup_person:
-            query += " AND pickup_person LIKE %s"
-            filters.append(f'%{pickup_person}%')
-        
-        if relationship_to_member:
-            query += " AND relationship_to_member LIKE %s"
-            filters.append(f'%{relationship_to_member}%')
-        
-        if primary_phone:
-            query += " AND primary_phone LIKE %s"
-            filters.append(f'%{primary_phone}%')
-        
-        if secondary_phone:
-            query += " AND secondary_phone LIKE %s"
-            filters.append(f'%{secondary_phone}%')
+        if am_name:
+            query += " AND am_name LIKE %s"
+            filters.append(f'%{am_name}%')
+
+        if am_phone:
+            query += " AND am_phone LIKE %s"
+            filters.append(f'%{am_phone}%')
+
+        if pm_name:
+            query += " AND pm_name LIKE %s"
+            filters.append(f'%{pm_name}%')
+
+        if pm_phone:
+            query += " AND pm_phone LIKE %s"
+            filters.append(f'%{pm_phone}%')
         
         # Execute the query with filters
         cursor.execute(query, tuple(filters))
@@ -566,7 +536,7 @@ class get_functions():
         results = cursor.fetchall()
         
         dict_results = {}
-        columns = ["id","bus_transport", "bus_company", "bus_contact_phone", "picked_up", "pickup_person", "relationship_to_member", "primary_phone", "secondary_phone"]
+        columns = ["id", "am_name", "am_phone", "pm_name", "pm_phone", "transportation_notes"]
         for i in range(len(columns)):
             dict_results[columns[i]] = [str(results[j][i]) for j in range(len(results))]
         if connection:
@@ -1048,10 +1018,11 @@ class update_functions():
 
     @staticmethod
     def update_member(
-            connection, id, name=None, age=None, dob=None, email=None, aep_completion_date=None, 
+            connection, id, name=None, dob=None, email=None, aep_completion_date=None, 
             join_date=None, schedule=None, phone=None, address=None, county=None, 
             gender=None, veteran=None, joined=None, caregiver_needed=None, medical_history = None,
-            alder_program=None, emergency_contact_one = None, emergency_contact_two = None, enrollment_form = None, notes = None
+            alder_program=None, emergency_contact_one = None, emergency_contact_two = None, enrollment_form = None, notes = None,
+            member_type=None, date_changed=None, transport_info=None,
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Member SET "
@@ -1060,9 +1031,6 @@ class update_functions():
         if name:
             update_query += "name = %s, "
             update_values.append(name)
-        if age is not None:
-            update_query += "age = %s, "
-            update_values.append(age)
         if dob:
             update_query += "dob = %s, "
             update_values.append(dob)
@@ -1117,6 +1085,15 @@ class update_functions():
         if notes:
             update_query += "notes = %s, "
             update_values.append(notes)
+        if member_type:
+            update_query += "member_type = %s, "
+            update_values.append(member_type)
+        if date_changed:
+            update_query += "date_changed = %s, "
+            update_values.append(date_changed)
+        if transport_info:
+            update_query += "transport_info = %s, "
+            update_values.append(transport_info)
 
         update_query = update_query.rstrip(", ")
 
@@ -1377,37 +1354,31 @@ class update_functions():
 
     @staticmethod
     def update_transportation_information(
-            connection, id, bus_transport=None, bus_company=None, bus_contact_phone=None,
-            picked_up=None, pickup_person=None, relationship_to_member=None, 
-            primary_phone=None, secondary_phone=None
+            connection, id, am_name=None, am_phone=None, pm_name=None, pm_phone=None, transportation_notes=None,
     ):
         cursor = connection.cursor()
         update_query = "UPDATE Transportation_Information SET "
         update_values = []
-        if bus_transport is not None:
-            update_query += "bus_transport = %s, "
-            update_values.append(bus_transport)
-        if bus_company:
-            update_query += "bus_company = %s, "
-            update_values.append(bus_company)
-        if bus_contact_phone:
-            update_query += "bus_contact_phone = %s, "
-            update_values.append(bus_contact_phone)
-        if picked_up is not None:
-            update_query += "picked_up = %s, "
-            update_values.append(picked_up)
-        if pickup_person:
-            update_query += "pickup_person = %s, "
-            update_values.append(pickup_person)
-        if relationship_to_member:
-            update_query += "relationship_to_member = %s, "
-            update_values.append(relationship_to_member)
-        if primary_phone:
-            update_query += "primary_phone = %s, "
-            update_values.append(primary_phone)
-        if secondary_phone:
-            update_query += "secondary_phone = %s, "
-            update_values.append(secondary_phone)
+        
+        if am_name:
+            update_query += "am_name = %s, "
+            update_values.append(am_name)
+
+        if am_phone:
+            update_query += "am_phone = %s, "
+            update_values.append(am_phone)
+
+        if pm_name:
+            update_query += "pm_name = %s, "
+            update_values.append(pm_name)
+
+        if pm_phone:
+            update_query += "pm_phone = %s, "
+            update_values.append(pm_phone)
+
+        if transportation_notes:
+            update_query += "transportation_notes = %s, "
+            update_values.append(transportation_notes)
         
 
         update_query = update_query.rstrip(", ")
@@ -1797,24 +1768,24 @@ class insert_functions():
             connection.close()
         return cursor.lastrowid
 
-    def insert_member(connection, name, age, dob, email, aep_completion_date, join_date, schedule, 
+    def insert_member(connection, name, dob, email, aep_completion_date, join_date, schedule, 
                   phone, address, county, gender, veteran, joined, caregiver_needed, 
-                  alder_program, notes):
+                  alder_program, member_info, notes, member_type, date_changed, transport_info):
         cursor = connection.cursor()
 
         insert_query = """
         INSERT INTO Member (
-            name, age, dob, email, aep_completion_date, join_date, schedule, 
+            name, dob, email, aep_completion_date, join_date, schedule,
             phone, address, county, gender, veteran, joined, caregiver_needed, 
-            alder_program, member_info, notes
+            alder_program, member_info, notes, member_type, date_changed, transport_info
         ) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         data = (
-            name, age, dob, email, aep_completion_date, join_date, schedule, 
+            name, dob, email, aep_completion_date, join_date, schedule, 
             phone, address, county, gender, veteran, joined, caregiver_needed, 
-            alder_program, notes
+            alder_program, member_info, notes, member_type, date_changed, transport_info
         )
 
         cursor.execute(insert_query, data)
@@ -1921,21 +1892,17 @@ class insert_functions():
             connection.close()
         return cursor.lastrowid
 
-    def insert_transportation_information(connection, bus_transport, bus_company, bus_contact_phone, picked_up,
-                                        pickup_person, relationship_to_member, primary_phone, secondary_phone):
+    def insert_transportation_information(connection, am_name, am_phone, pm_name, pm_phone, transportation_notes):
         cursor = connection.cursor()
 
         insert_query = """
         INSERT INTO Transportation_Information (
-            bus_transport, bus_company, bus_contact_phone, picked_up, pickup_person, 
-            relationship_to_member, primary_phone, secondary_phone
+            am_name, am_phone, pm_name, pm_phone, transportation_notes
         ) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """
+        VALUES (%s, %s, %s, %s, %s)"""
 
         data = (
-            bus_transport, bus_company, bus_contact_phone, picked_up, pickup_person, 
-            relationship_to_member, primary_phone, secondary_phone
+            am_name, am_phone, pm_name, pm_phone, transportation_notes
         )
 
         cursor.execute(insert_query, data)

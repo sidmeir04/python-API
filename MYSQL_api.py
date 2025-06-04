@@ -17,7 +17,7 @@ db_config = {
 
 # Create a connection pool
 try:
-    pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=25, **db_config)
+    pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=32, **db_config)
     print("Database connection pool created successfully.")
 except mysql.connector.Error as e:
     print(f"Error creating MySQL connection pool: {e}")
@@ -72,7 +72,6 @@ def get_member():
         connection=get_connection(),
         id=member_data.get('id', None),
         name=member_data.get('name', ''),
-        age=member_data.get('age', None),
         dob=member_data.get('dob', None),
         email=member_data.get('email', ''),
         schedule=member_data.get('schedule', None),
@@ -84,6 +83,8 @@ def get_member():
         joined=member_data.get('joined', None),
         caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', ''),
+        member_type=member_data.get('member_type', None),
+        date_changed=member_data.get('date_changed', None),
     )
     return jsonify(member), 200
 
@@ -163,14 +164,10 @@ def get_transportation_information():
     transportation_information = get_functions.get_transportation_information(
         connection=get_connection(),
         id=transportation_data.get('id', None),
-        bus_transport=transportation_data.get('bus_transport', None),
-        bus_company=transportation_data.get('bus_company', ''),
-        bus_contact_phone=transportation_data.get('bus_contact_phone', ''),
-        picked_up=transportation_data.get('picked_up', None),
-        pickup_person=transportation_data.get('pickup_person', ''),
-        relationship_to_member=transportation_data.get('relationship_to_member', ''),
-        primary_phone=transportation_data.get('primary_phone', ''),
-        secondary_phone=transportation_data.get('secondary_phone', ''),
+        am_name= transportation_data.get('am_name', ''),
+        am_phone= transportation_data.get('am_phone', ''),
+        pm_name= transportation_data.get('pm_name', ''),
+        pm_phone= transportation_data.get('pm_phone', ''),
     )
     return jsonify(transportation_information), 200
 
@@ -320,7 +317,6 @@ def update_member():
         connection=get_connection(),
         id=member_data.get('id')[0],
         name=member_data.get('name', None),
-        age=member_data.get('age', None),
         dob=member_data.get('dob', None),
         email=member_data.get('email', None),
         aep_completion_date=member_data.get('aep_completion_date', None),
@@ -334,10 +330,13 @@ def update_member():
         joined=member_data.get('joined', None),
         caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', None),
+        member_type=member_data.get('member_type', None),
+        date_changed=member_data.get('date_changed', None),
         medical_history=member_data.get('medical_history', None),
         emergency_contact_one=member_data.get('emergency_contact_one', None),
         emergency_contact_two=member_data.get('emergency_contact_two', None),
         enrollment_form=member_data.get('enrollment_form', None),
+        transport_info=member_data.get('transport_info', None),
         notes=member_data.get('notes', None)
     )
     return '', 200
@@ -431,14 +430,11 @@ def update_transportation_information():
     update_functions.update_transportation_information(
         connection=get_connection(),
         id=transportation_data.get('id'),
-        bus_transport=transportation_data.get('bus_transport', None),
-        bus_company=transportation_data.get('bus_company', None),
-        bus_contact_phone=transportation_data.get('bus_contact_phone', None),
-        picked_up=transportation_data.get('picked_up', None),
-        pickup_person=transportation_data.get('pickup_person', None),
-        relationship_to_member=transportation_data.get('relationship_to_member', None),
-        primary_phone=transportation_data.get('primary_phone', None),
-        secondary_phone=transportation_data.get('secondary_phone', None),
+        am_name=transportation_data.get('am_name', None),
+        am_phone=transportation_data.get('am_phone', None),
+        pm_name=transportation_data.get('pm_name', None),
+        pm_phone=transportation_data.get('pm_phone', None),
+        transportation_notes=transportation_data.get('transportation_notes', None),
     )
     return '', 200
 
@@ -556,7 +552,7 @@ def insert_contact():
     caller_data = json.loads(request.get_json()[0])
     id = insert_functions.insert_contact(
         connection=get_connection(),
-        staff=caller_data.get('staff', None),
+        staff=caller_data.get('staff', "None"),
         caller_name=caller_data.get('caller_name', None),
         caller_email=caller_data.get('caller_email', None),
         call_date=caller_data.get('call_date', None),
@@ -596,7 +592,6 @@ def insert_member():
     id = insert_functions.insert_member(
         connection=get_connection(),
         name=member_data.get('name', None),
-        age=member_data.get('age', None),
         dob=member_data.get('dob', None),
         email=member_data.get('email', None),
         aep_completion_date=member_data.get('aep_completion_date', None),
@@ -608,8 +603,12 @@ def insert_member():
         gender=member_data.get('gender', None),
         veteran=member_data.get('veteran', None),
         joined=member_data.get('joined', None),
+        member_info=json.dumps(member_data.get('member_info', None)),
+        member_type=member_data.get('member_type', None),
+        date_changed=member_data.get('date_changed', None),
         caregiver_needed=member_data.get('caregiver_needed', None),
         alder_program=member_data.get('alder_program', None),
+        transport_info=member_data.get('transport_info', None),
         notes=member_data.get('notes', None)
     )
     return str(id), 200
@@ -695,14 +694,11 @@ def insert_transportation_information():
     transportation_data = json.loads(request.get_json()[0])
     id = insert_functions.insert_transportation_information(
         connection=get_connection(),
-        bus_transport=transportation_data.get('bus_transport', None),
-        bus_company=transportation_data.get('bus_company', None),
-        bus_contact_phone=transportation_data.get('bus_contact_phone', None),
-        picked_up=transportation_data.get('picked_up', None),
-        pickup_person=transportation_data.get('pickup_person', None),
-        relationship_to_member=transportation_data.get('relationship_to_member', None),
-        primary_phone=transportation_data.get('primary_phone', None),
-        secondary_phone=transportation_data.get('secondary_phone', None),
+        am_name=transportation_data.get('am_name', None),
+        am_phone=transportation_data.get('am_phone', None),
+        pm_name=transportation_data.get('pm_name', None),
+        pm_phone=transportation_data.get('pm_phone', None),
+        transportation_notes=transportation_data.get('transportation_notes', None),
     )
     return str(id), 200
 
