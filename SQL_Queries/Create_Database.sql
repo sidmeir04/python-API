@@ -132,7 +132,7 @@ CREATE TABLE Member (
     veteran BOOLEAN,                   -- Veteran status
     joined BOOLEAN,                    -- Whether the member joined
     caregiver_needed BOOLEAN,          -- Whether a caregiver is needed
-    alder_program VARCHAR(50),         -- Alder program info
+    adler_program VARCHAR(50),         -- Adler program info
     member_type VARCHAR(50),
     date_changed DATE,
     notes TEXT,

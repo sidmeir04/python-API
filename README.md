@@ -8,18 +8,25 @@ This folder contains the **Python Flask API** that handles communication between
 - Uses a **MySQL connection pool** for query handling
 - Divided into classes for `get`, `update`, and `insert` operations
 - Connects directly to a structured MySQL schema for member, caregiver, tour, and outreach data
+- Includes **code generators** that automatically produce `MYSQL_api.py` and `SQL_connecter.py` from a JSON schema (`Tables.json`)
 
 ## Files
 
 - **`MYSQL_api.py`** – The main Flask app. Defines all API routes.
 - **`SQL_connecter.py`** – Contains the SQL logic for fetching and manipulating data from MySQL using safe, dynamic queries.
+- **`generate_api.py`** – Generator script that reads `Tables.json` and builds `MYSQL_api.py` (the Flask routes).
+- **`generate_sql_connecter.py`** – Generator script that reads `Tables.json` and builds `SQL_connecter.py` (the database query functions).
+- **`Tables.json`** – JSON schema definition for all database tables (columns, types, constraints). Acts as the single source of truth for both API routes and SQL logic.
 
 ## Key Features
 
 - **Connection Pooling**: Uses `mysql.connector.pooling.MySQLConnectionPool` to handle several rapid requests.
 - **Modular Query Logic**: Organized under `get_functions`, `update_functions`, and `insert_functions` classes.
 - **Dynamic Filters**: GET endpoints build SQL `WHERE` clauses based on request body fields.
+- **JSON Column Support**: Columns defined as `JSON` in `Tables.json` are automatically parsed using `json.loads`.
+- **Date Handling**: Date fields are validated and converted using `string_to_date`, which returns `None` when no valid date is supplied.
 - **Flexible Integration**: Communicates with the C++ frontend via HTTP POST requests using JSON payloads.
+- **Schema-Driven**: Update `Tables.json` and regenerate the code to apply schema changes across the backend instantly.
 
 ## Running the API
 
